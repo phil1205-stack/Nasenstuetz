@@ -206,6 +206,19 @@ details.box summary { cursor: pointer; font-weight: 600; }
 .streak .flame { width: 52px; height: 52px; border-radius: 14px; display: grid; place-content: center; font-family: var(--display); font-size: 30px; font-weight: 800; color: var(--hero-ink); background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); font-variant-numeric: tabular-nums; }
 .flex-in { display: flex; gap: 8px; align-items: center; }
 .flex-in input { width: 76px; font: inherit; padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); text-align: right; }
+.lvl-card { gap: 10px; background: linear-gradient(135deg, color-mix(in srgb, var(--hero-a) 14%, var(--surface)), color-mix(in srgb, var(--hero-b) 14%, var(--surface))); }
+.xp { font-family: var(--display); font-size: 28px; font-weight: 800; text-align: right; line-height: 1; }
+.xp small { font-size: 13px; color: var(--muted); font-weight: 600; }
+.xpbar { height: 12px; border-radius: 6px; background: var(--sunk); overflow: hidden; }
+.xpbar i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--hero-a), var(--hero-b)); }
+.bgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.bdg { display: grid; justify-items: center; text-align: center; gap: 4px; padding: 10px 6px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+.bdg b { font-size: 13px; line-height: 1.2; }
+.bdg span { font-size: 11px; color: var(--muted); line-height: 1.3; }
+.bdg:not(.got) svg { opacity: .9; }
+.unlock { display: grid; justify-items: center; gap: 6px; animation: rise .6s cubic-bezier(.2,1.4,.4,1) both; }
+@keyframes rise { from { transform: scale(.3) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .unlock { animation: none; } }
 #fx { position: fixed; inset: 0; z-index: 80; pointer-events: none; width: 100%; height: 100%; }
 @media (prefers-reduced-motion: reduce) { .stage .big.pop { animation: none; } #run .track i { transition: none; } }
 </style>
@@ -381,11 +394,18 @@ if (S.setup.done && !S.migT) {
   for (const ex of EX_ORDER) { const h = S.prog[ex].hist[0]; const has = Object.values(S.log).some(d => d.items.some(i => i.type === ex && i.mode === "test")); if (h && !has) logAdd(h[0], { type: ex, mode: "test", sets: [h[1]] }); }
   S.migT = true; save();
 }
+if (S.setup.done && !S.badgesSeen) { /* wird nach dem ersten render gesetzt */ }
 function applyTheme() {
   const t = S.setup.theme || "light"; document.documentElement.setAttribute("data-theme", t);
   const dark = t === "dark" || (t === "system" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
   const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute("content", dark ? "#131B2A" : "#F3F6FA");
 }
+function lastTrainingKey() { return Object.keys(S.log).filter(hasProgram).sort().pop() || null; }
+function pauseDays() {
+  const k = lastTrainingKey(); if (!k) return 0;
+  return Math.floor((new Date(todayKey() + "T12:00") - new Date(k + "T12:00")) / 864e5);
+}
+function reentryFactor(d) { return d > 30 ? 0.7 : d > 14 ? 0.8 : 0.9; }
 function restFor(i, of) { return S.setup.restAuto ? (i >= of - 2 ? 90 : 60) : S.setup.rest; }
 
 /* ===================== Plan-Logik ===================== */
@@ -521,6 +541,94 @@ function statsHTML() {
   return seg + cap + kpis + chart + (best ? `<p class="small">Beste Sätze: ${best}</p>` : "");
 }
 
+
+/* ===================== Gamification: Punkte, Level, Abzeichen =====================
+   Alles wird aus deinem Trainingsbuch berechnet, nichts lässt sich "erschummeln" außer durch Training. */
+const LEVELS = ["Neustart", "Einsteiger", "Dranbleiber", "Routinier", "Kämpfer", "Athlet", "Eisern", "Maschine", "Titan", "Legende"];
+function lifetime() {
+  const keys = Object.keys(S.log).sort(), a = aggregate(keys);
+  let stretchN = 0, bandN = 0, minis = 0, tests = 0, allFour = 0, comebacks = 0, prev = null;
+  const vars = new Set();
+  for (const k of keys) {
+    const items = S.log[k].items, types = new Set();
+    for (const it of items) {
+      if (it.mode === "routine") { if (ROUTINES[it.type] && ROUTINES[it.type].kind === "band") bandN++; else stretchN++; }
+      if (it.mode === "mini") minis++;
+      if (it.mode === "test" || it.test) tests++;
+      if (it.variant) vars.add(it.variant);
+      if (EX[it.type]) types.add(it.type);
+    }
+    if (types.size === 4) allFour++;
+    if (hasProgram(k)) {
+      if (prev && (new Date(k + "T12:00") - new Date(prev + "T12:00")) / 864e5 > 7) comebacks++;
+      prev = k;
+    }
+  }
+  const flexGain = S.flex.length > 1 ? Math.max(...S.flex.map(f => f[1])) - S.flex[0][1] : 0;
+  const xp = a.push + a.squat + a.situp + Math.round(a.plank / 2) + (a.stretch + a.band) * 5 + a.days * 50 + tests * 20;
+  return Object.assign(a, { stretchN, bandN, minis, tests, allFour, comebacks, vars: vars.size, flexGain, xp, streak: weekStreak() });
+}
+function levelOf(xp) { // Level n braucht 150 · n · (n+1) / 2 Punkte
+  let n = 0; while (150 * (n + 1) * (n + 2) / 2 <= xp) n++;
+  const lo = 150 * n * (n + 1) / 2, hi = 150 * (n + 1) * (n + 2) / 2;
+  return { n: n + 1, name: LEVELS[Math.min(n, LEVELS.length - 1)], into: xp - lo, need: hi - lo };
+}
+const BADGES = [
+  ["first",   "Erster Schritt",     "Erste Trainingseinheit",          "1",    "--c-push",    L => [L.days, 1]],
+  ["week1",   "Woche geschafft",    "Eine Woche komplett im Plan",     "W",    "--c-squat",   L => [L.streak, 1]],
+  ["week4",   "Vier Wochen",        "4 Wochen am Stück im Plan",       "4W",   "--c-squat",   L => [L.streak, 4]],
+  ["week12",  "Quartal",            "12 Wochen am Stück im Plan",      "12W",  "--c-squat",   L => [L.streak, 12]],
+  ["push10",  "Zehner",             "10 Liegestütze am Stück",         "10",   "--c-push",    L => [L.best.push || 0, 10]],
+  ["push25",  "Brustkorb",          "25 Liegestütze am Stück",         "25",   "--c-push",    L => [L.best.push || 0, 25]],
+  ["push50",  "Halbe Hundert",      "50 Liegestütze am Stück",         "50",   "--c-push",    L => [L.best.push || 0, 50]],
+  ["push100", "Hundert",            "100 Liegestütze am Stück",        "100",  "--c-push",    L => [L.best.push || 0, 100]],
+  ["squat50", "Beine aus Stahl",    "50 Squats am Stück",              "50",   "--c-squat",   L => [L.best.squat || 0, 50]],
+  ["situp40", "Bauchgefühl",        "40 Situps am Stück",              "40",   "--c-situp",   L => [L.best.situp || 0, 40]],
+  ["plank60", "Eine Minute",        "Plank 60 Sekunden",               "1:00", "--c-plank",   L => [L.best.plank || 0, 60]],
+  ["plank120","Brett",              "Plank 2 Minuten",                 "2:00", "--c-plank",   L => [L.best.plank || 0, 120]],
+  ["tot1k",   "Tausender",          "1.000 Liegestütze insgesamt",     "1k",   "--c-push",    L => [L.push, 1000]],
+  ["sq1k",    "Kniebeugen-Tausend", "1.000 Squats insgesamt",          "1k",   "--c-squat",   L => [L.squat, 1000]],
+  ["reps10k", "Zehntausend",        "10.000 Wiederholungen insgesamt", "10k",  "--c-band",    L => [L.push + L.squat + L.situp, 10000]],
+  ["four",    "Alle Vier",          "Alle vier Übungen an einem Tag",  "4",    "--c-free",    L => [L.allFour, 1]],
+  ["vars",    "Variantenreich",     "Alle 5 Liegestütz-Varianten",     "5V",   "--c-push",    L => [L.vars, 5]],
+  ["str10",   "Gelenkig",           "10 Dehn-Einheiten",               "10",   "--c-stretch", L => [L.stretchN, 10]],
+  ["str50",   "Geschmeidig",        "50 Dehn-Einheiten",               "50",   "--c-stretch", L => [L.stretchN, 50]],
+  ["flex5",   "Weiter vorn",        "Beweglichkeit +5 cm",             "+5",   "--c-stretch", L => [L.flexGain, 5]],
+  ["band10",  "Gummiband",          "10 Band-Workouts",                "B",    "--c-band",    L => [L.bandN, 10]],
+  ["mini",    "Tag gerettet",       "Mini-Version statt Ausfall",      "M",    "--c-situp",   L => [L.minis, 1]],
+  ["comeback","Comeback",           "Nach über 7 Tagen Pause zurück",  "C",    "--c-plank",   L => [L.comebacks, 1]],
+  ["lvl5",    "Kämpfer",            "Level 5 erreicht",                "L5",   "--c-free",    L => [levelOf(L.xp).n, 5]]
+];
+function badgeState(L) { return BADGES.map(([id, name, desc, sym, color, fn]) => { const [v, goal] = fn(L); return { id, name, desc, sym, color, v: Math.min(v, goal), goal, got: v >= goal }; }); }
+function medal(b, size) {
+  const c = cv(b.color), fs = b.sym.length > 3 ? 13 : b.sym.length > 2 ? 15 : 18;
+  return `<svg viewBox="0 0 48 48" width="${size}" height="${size}" aria-hidden="true">
+    <circle cx="24" cy="24" r="21" fill="${b.got ? c : "var(--sunk)"}"/>
+    <circle cx="24" cy="24" r="16.5" fill="none" stroke="${b.got ? "rgba(255,255,255,.55)" : "var(--line)"}" stroke-width="2" stroke-dasharray="${b.got ? "0" : "3 3"}"/>
+    <text x="24" y="${24 + fs * 0.36}" text-anchor="middle" font-family="Barlow Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="${fs}" fill="${b.got ? "#fff" : "var(--muted)"}">${b.sym}</text></svg>`;
+}
+function gameHTML() {
+  const L = lifetime(), lv = levelOf(L.xp), bs = badgeState(L), got = bs.filter(b => b.got).length;
+  const next = bs.filter(b => !b.got).sort((a, b) => b.v / b.goal - a.v / a.goal).slice(0, 3);
+  const badge = b => `<div class="bdg ${b.got ? "got" : ""}">${medal(b, 52)}<b>${b.name}</b><span>${b.got ? b.desc : fmtProg(b)}</span></div>`;
+  return `<div class="card pad lvl-card">
+      <div class="row"><div><span class="label">Level ${lv.n}</span><h3 style="font-size:24px">${lv.name}</h3></div><div class="xp num">${L.xp.toLocaleString("de-DE")} <small>Punkte</small></div></div>
+      <div class="xpbar"><i style="width:${Math.round(lv.into / lv.need * 100)}%"></i></div>
+      <p class="small">Noch ${(lv.need - lv.into).toLocaleString("de-DE")} Punkte bis Level ${lv.n + 1}. Punkte gibt es für jede Wiederholung, jede Dehnminute und jeden Trainingstag.</p>
+    </div>
+    <div class="row"><span class="label">Abzeichen · ${got} von ${bs.length}</span></div>
+    ${next.length ? `<div class="bgrid">${next.map(badge).join("")}</div>` : ""}
+    <details class="box card"><summary>Alle Abzeichen ansehen</summary><div class="bgrid" style="margin-top:12px">${bs.map(badge).join("")}</div></details>`;
+}
+function fmtProg(b) { return b.desc + " · " + (b.id.startsWith("plank") ? b.v + "/" + b.goal + " s" : b.v.toLocaleString("de-DE") + "/" + b.goal.toLocaleString("de-DE")); }
+function newAchievements() {
+  const L = lifetime(), lv = levelOf(L.xp), seen = new Set(S.badgesSeen || []);
+  const fresh_ = badgeState(L).filter(b => b.got && !seen.has(b.id));
+  const lvUp = (S.levelSeen || 1) < lv.n;
+  S.badgesSeen = badgeState(L).filter(b => b.got).map(b => b.id); S.levelSeen = lv.n; save();
+  return { badges: fresh_, level: lvUp ? lv : null };
+}
+
 /* ---------- Feier-Animation ---------- */
 function celebrate(big) {
   if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -611,12 +719,18 @@ function render() {
   const flexLast = S.flex.length ? S.flex[S.flex.length - 1] : null, flexFirst = S.flex[0];
   const flexDelta = flexLast && flexFirst && S.flex.length > 1 ? flexLast[1] - flexFirst[1] : null;
   const flexDue = !flexLast || (Date.now() - new Date(flexLast[0] + "T12:00").getTime()) > 6 * 864e5;
+  const pd = pauseDays(), lk = lastTrainingKey();
+  const reentry = pd > 7 && S.reentryAck !== lk && !done ? `<div class="card pad" style="border-color:var(--c-squat)"><h3>Willkommen zurück</h3>
+    <p class="muted">Deine letzte Einheit ist ${pd} Tage her. Nach so einer Pause sind die alten Zahlen oft zu viel, und genau dann hören viele wieder auf. Soll ich deinen Plan um ${Math.round((1 - reentryFactor(pd)) * 100)} % zurücknehmen? In ein bis zwei Wochen bist du wieder auf dem alten Stand.</p>
+    <button class="go" id="reYes">Ja, sanft einsteigen</button><button class="go alt" id="reNo">Nein, weiter wie bisher</button></div>` : "";
   app.innerHTML = `
   <header class="top">${brandHTML()}</header>
   ${weekStrip()}
+  ${reentry}
   ${today}
   <div class="streak card"><div class="flame">${streak}</div><div><div style="font-weight:600">${streak === 1 ? "Woche" : "Wochen"} in Folge im Plan</div>
     <div class="small">Diese Woche: Training ${ws.done}/${ws.plan} · Dehnen ${ws.stretch}/${S.setup.stretchGoal}${S.setup.cycle !== "daily" ? " · Termin " + S.setup.time + " Uhr" : ""}</div></div></div>
+  <section style="display:grid;gap:10px">${gameHTML()}</section>
   <section style="display:grid;gap:10px"><span class="label">Nur eine Übung · zählt für deinen Plan</span><div class="tiles four">${single}</div></section>
   <section style="display:grid;gap:10px"><span class="label">Dehnen, Band und mehr</span><div class="tiles">${tileHTML}</div></section>
   <section style="display:grid;gap:10px"><span class="label">Fortschritt · Trainingsstand am Stück</span><div class="prog card">${progRows}
@@ -660,6 +774,10 @@ function settingsHTML() {
     <div class="row"><label for="themeSel">Darstellung</label><select id="themeSel">${[["light", "Hell"], ["dark", "Dunkel"], ["system", "Wie iPhone"]].map(([v, n]) => `<option value="${v}" ${S.setup.theme === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>
     <div class="row"><label for="sensSq">Squats: Empfindlichkeit</label><input type="range" id="sensSq" min="1" max="10" value="${S.prog.squat.sens}"></div>
     <div class="row"><label for="sensSu">Situps: Empfindlichkeit</label><input type="range" id="sensSu" min="1" max="10" value="${S.prog.situp.sens}"></div>
+    <span class="label" style="margin-top:6px">Datensicherung</span>
+    <p class="small">Deine Daten liegen nur in Safari auf diesem Gerät. Sichere sie ab und zu als Datei, zum Beispiel in iCloud Drive. Damit kannst du sie auch auf ein neues Handy mitnehmen.</p>
+    <div class="row"><button class="btn-s" id="bkExport">Sicherung speichern</button><label class="btn-s" for="bkFile" style="cursor:pointer">Sicherung laden</label><input type="file" id="bkFile" accept=".json,application/json" hidden></div>
+    <p class="small" id="bkMsg"></p>
     <button class="linkbtn" id="redoTest">Einstufung neu machen</button>
   </div>`;
 }
@@ -731,6 +849,38 @@ function bindHome() {
   $("#freeSet").addEventListener("click", startFree);
   $("#bandT").addEventListener("click", () => { S.setup.band = !S.setup.band; save(); render(); });
   $("#restSel").addEventListener("change", e => { if (e.target.value === "auto") S.setup.restAuto = true; else { S.setup.restAuto = false; S.setup.rest = Number(e.target.value); } save(); render(); });
+  const ry = $("#reYes"); if (ry) ry.addEventListener("click", () => {
+    const f = reentryFactor(pauseDays());
+    for (const ex of EX_ORDER) { const p = S.prog[ex]; p.tm = Math.max(ex === "plank" ? 15 : 2, Math.round(p.tm * f * 10) / 10); p.miss = 0; p.hist.push([todayKey(), Math.round(p.tm)]); }
+    S.reentryAck = lastTrainingKey(); save(); render();
+  });
+  const rn = $("#reNo"); if (rn) rn.addEventListener("click", () => { S.reentryAck = lastTrainingKey(); save(); render(); });
+  $("#bkExport").addEventListener("click", async () => {
+    const name = "nasenstuetz-sicherung-" + todayKey() + ".json";
+    const blob = new Blob([JSON.stringify(S)], { type: "application/json" });
+    try {
+      const file = new File([blob], name, { type: "application/json" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); $("#bkMsg").textContent = "Sicherung erstellt."; return; }
+    } catch (e) { if (e && e.name === "AbortError") return; }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    $("#bkMsg").textContent = "Sicherung als Datei gespeichert.";
+  });
+  $("#bkFile").addEventListener("change", e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const d = JSON.parse(rd.result);
+        if (!d || d.v !== 3 || !d.prog || !d.log) throw new Error("format");
+        const msg = $("#bkMsg"); msg.textContent = "Sicherung vom " + (Object.keys(d.log).sort().pop() || "?") + " gefunden. Deine aktuellen Daten werden ersetzt. ";
+        const ok = document.createElement("button"); ok.className = "btn-s"; ok.textContent = "Ersetzen";
+        ok.addEventListener("click", () => { S = Object.assign(fresh(), d); S.setup = Object.assign(fresh().setup, d.setup); save(); render(); });
+        msg.append(ok);
+      } catch (err) { $("#bkMsg").textContent = "Diese Datei ist keine gültige Sicherung dieser App."; }
+    };
+    rd.readAsText(f);
+  });
   $("#varsT").addEventListener("click", () => { S.setup.vars = !S.setup.vars; save(); render(); });
   $("#themeSel").addEventListener("change", e => { S.setup.theme = e.target.value; save(); render(); });
   document.querySelectorAll("[data-single]").forEach(b => b.addEventListener("click", () => startSingle(b.dataset.single)));
@@ -1039,6 +1189,15 @@ function stepDone(s, st, ac) {
   }
   if (R.meta.kind === "routine") { const row = el("div"); row.append(el("span", "", R.title), el("b", "", R.meta.min + " Min")); sum.append(row); }
   st.append(sum);
+  const ach = newAchievements();
+  if (ach.level) { const u = el("div", "unlock"); u.append(el("div", "label", "Level-Aufstieg"), el("div", "what", "Level " + ach.level.n + " · " + ach.level.name, "color:var(--hero-b)")); st.append(u); }
+  if (ach.badges.length) {
+    const u = el("div", "unlock"); u.append(el("div", "label", ach.badges.length === 1 ? "Neues Abzeichen" : ach.badges.length + " neue Abzeichen"));
+    const row = el("div", "", null, "display:flex;gap:10px;flex-wrap:wrap;justify-content:center");
+    ach.badges.slice(0, 4).forEach(b => { const d = el("div", "bdg got", null, "width:104px"); d.innerHTML = medal(b, 56); d.append(el("b", "", b.name)); row.append(d); });
+    u.append(row); st.append(u);
+    timers.push(setTimeout(() => celebrate(true), 900));
+  }
   if (R.meta.kind === "plan") st.append(el("div", "cue", "Dein nächstes Training ist schon neu berechnet. Dehnen hilft jetzt beim Runterkommen."));
   ac.append(btn("Schließen", "main", () => endRun(), "--c-free"));
 }
@@ -1132,6 +1291,7 @@ function onMotion(ev) {
   }
 }
 
+if (S.setup.done && !S.badgesSeen) newAchievements();
 render();
 })();
 </script>
