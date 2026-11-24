@@ -512,7 +512,13 @@ function statsHTML() {
       <div class="legend"><span style="--k:var(--c-push)">Liegestütze</span><span style="--k:var(--c-squat)">Squats</span><span style="--k:var(--c-situp)">Situps</span></div></div>`;
   }
   const best = EX_ORDER.filter(e => a.best[e]).map(e => `${EX[e].name} ${fmt(e, a.best[e])}`).join(" · ");
-  return seg + kpis + chart + (best ? `<p class="small">Beste Sätze: ${best}</p>` : "");
+  const now = new Date(), mon = monday(now), sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const dm = d => d.getDate() + "." + (d.getMonth() + 1) + ".";
+  const range = { day: "Heute, " + dm(now), week: "Diese Woche, " + dm(mon) + " bis " + dm(sun), month: MON[now.getMonth()] + " " + now.getFullYear(), year: "Jahr " + now.getFullYear(), all: "Alles seit deinem ersten Training" }[statPeriod];
+  const any = a.push + a.squat + a.situp + a.plank + a.stretch + a.band > 0;
+  const cap = `<div class="row"><b style="font-size:14px">${range}</b><span class="small">${a.days} ${a.days === 1 ? "Trainingstag" : "Trainingstage"}</span></div>`;
+  if (!any) return seg + cap + `<p class="small">In diesem Zeitraum ist noch nichts eingetragen.</p>`;
+  return seg + cap + kpis + chart + (best ? `<p class="small">Beste Sätze: ${best}</p>` : "");
 }
 
 /* ---------- Feier-Animation ---------- */
