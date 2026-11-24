@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nasenstütz</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nasenstütz">
+<meta name="theme-color" content="#F2541B">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: eine Bildschirm-App. Übungs-Tabs oben, Tagesziel als Ring, Satz-Start, Verlauf, Einstellungen. Im Satz: Vollbild-Zähler. */
+:root {
+  --bg: #EEF1F4; --surface: #FFFFFF; --ink: #15202B; --muted: #5B6875; --line: #D5DCE3;
+  --accent: #F2541B; --accent-ink: #FFFFFF; --good: #1F8A5B; --track: #DCE2E8;
+  --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0E141A; --surface: #17202A; --ink: #E9EEF3; --muted: #93A1AE; --line: #26323E;
+    --accent: #FF6A33; --accent-ink: #160A04; --good: #3FBF85; --track: #24303B; color-scheme: dark; }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 32px) max(16px, env(safe-area-inset-left, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+[hidden] { display: none !important; }
+main { max-width: 460px; margin: 0 auto; display: grid; gap: 20px; }
+header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+h1 { font-family: var(--display); font-weight: 800; font-size: 30px; letter-spacing: .01em; margin: 0; text-transform: uppercase; }
+.date { color: var(--muted); font-size: 13px; }
+.label { font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); font-weight: 600; }
+
+.tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+.tab { background: transparent; color: var(--muted); border-radius: 9px; padding: 9px 2px; font-weight: 600; font-size: 13px; position: relative; }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.tab .dot { position: absolute; top: 5px; right: 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--good); }
+
+.hero { display: grid; justify-items: center; gap: 14px; }
+.ring { position: relative; width: min(240px, 68vw); aspect-ratio: 1; max-width: 100%; }
+.ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring .center { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.big { font-family: var(--display); font-weight: 800; font-size: 72px; line-height: .9; font-variant-numeric: tabular-nums; }
+.of { color: var(--muted); font-size: 14px; margin-top: 6px; }
+.stats { display: flex; gap: 26px; justify-content: center; }
+.stat { text-align: center; }
+.stat b { display: block; font-family: var(--display); font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+button { font: inherit; cursor: pointer; border: 0; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.primary { width: 100%; background: var(--accent); color: var(--accent-ink); font-family: var(--display); font-weight: 800; font-size: 24px; letter-spacing: .04em; text-transform: uppercase; padding: 18px; border-radius: 14px; }
+.hint { color: var(--muted); font-size: 13px; text-align: center; margin: -8px 0 0; }
+
+section { display: grid; gap: 10px; }
+.sets { display: flex; flex-wrap: wrap; gap: 8px; min-height: 34px; align-items: center; }
+.chip { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-variant-numeric: tabular-nums; font-weight: 600; }
+.empty { color: var(--muted); font-size: 14px; }
+
+.bars { display: grid; grid-template-columns: repeat(14, 1fr); gap: 5px; align-items: end; height: 110px; padding-top: 6px; }
+.bar { display: grid; gap: 4px; height: 100%; grid-template-rows: 1fr auto; }
+.bar .col { display: flex; align-items: flex-end; }
+.bar span { display: block; width: 100%; border-radius: 4px 4px 2px 2px; background: var(--track); min-height: 3px; }
+.bar span.hit { background: var(--good); }
+.bar span.part { background: var(--accent); opacity: .75; }
+.bar i { font-style: normal; font-size: 10px; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
+
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+summary { cursor: pointer; font-weight: 600; }
+.field { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; }
+.field input[type=number] { width: 84px; font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); text-align: right; }
+.field input[type=range] { width: 150px; accent-color: var(--accent); }
+.small { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
+.ghost { background: transparent; color: var(--muted); text-decoration: underline; padding: 0; margin-top: 12px; font-size: 13px; }
+
+/* Satz-Modus */
+#pad {
+  position: fixed; inset: 0; z-index: 50; background: var(--bg); touch-action: none; user-select: none; -webkit-user-select: none;
+  display: grid; grid-template-rows: auto 1fr auto; gap: 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 18px) max(16px, env(safe-area-inset-left, 0px));
+}
+#pad .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+#pad .count { display: grid; place-content: center; text-align: center; gap: 8px; }
+#pad .n { font-family: var(--display); font-weight: 800; font-size: min(44vw, 300px); line-height: .85; font-variant-numeric: tabular-nums; }
+#pad .n.pop { animation: pop .18s ease-out; }
+#pad .status { color: var(--muted); font-size: 15px; min-height: 22px; }
+@keyframes pop { from { transform: scale(1.08); color: var(--accent); } to { transform: scale(1); } }
+.target { justify-self: center; width: min(66vw, 280px); aspect-ratio: 1; max-width: 100%; border-radius: 50%; border: 3px dashed var(--line); display: grid; place-content: center; color: var(--muted); font-size: 14px; text-align: center; padding: 20px; }
+.meter { justify-self: stretch; display: grid; gap: 6px; }
+.meter .track { position: relative; height: 14px; border-radius: 7px; background: var(--track); overflow: hidden; }
+.meter .fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--accent); transition: width .08s linear; }
+.meter .thr { position: absolute; top: -3px; bottom: -3px; width: 3px; background: var(--ink); left: 50%; }
+.meter .cap { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+.btn2 { background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; font-weight: 600; }
+.btn2.done { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { #pad .n.pop { animation: none; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Nasenstütz</h1>
+    <span class="date" id="date"></span>
+  </header>
+
+  <div class="tabs" role="tablist" id="tabs"></div>
+
+  <div class="hero">
+    <div class="ring">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="var(--track)" stroke-width="10"></circle>
+        <circle id="arc" cx="60" cy="60" r="52" fill="none" stroke="var(--accent)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition: stroke-dashoffset .5s"></circle>
+      </svg>
+      <div class="center">
+        <div class="big" id="todayTotal">0</div>
+        <div class="of" id="goalText"></div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="streak">0</b><span class="label">Tage Serie</span></div>
+      <div class="stat"><b id="best">0</b><span class="label" id="bestLabel">Bester Satz</span></div>
+      <div class="stat"><b id="allTime">0</b><span class="label">Gesamt</span></div>
+    </div>
+  </div>
+
+  <button class="primary" id="start">Satz starten</button>
+  <p class="hint" id="hint"></p>
+
+  <section>
+    <span class="label">Sätze heute</span>
+    <div class="sets" id="sets"></div>
+  </section>
+
+  <section>
+    <span class="label">Letzte 14 Tage</span>
+    <div class="bars" id="bars"></div>
+  </section>
+
+  <details>
+    <summary>Plan einstellen</summary>
+    <div class="field"><label for="startGoal" id="startGoalLabel">Tagesziel am Anfang</label><input id="startGoal" type="number" min="1" max="1000" inputmode="numeric"></div>
+    <div class="field"><label for="step" id="stepLabel">Plus pro geschafftem Tag</label><input id="step" type="number" min="0" max="60" inputmode="numeric"></div>
+    <div class="field" id="sensField" hidden><label for="sens">Empfindlichkeit</label><input id="sens" type="range" min="1" max="10" step="1"></div>
+    <p class="small" id="planNote">Jeder Tag, an dem du dein Ziel erreichst, hebt das nächste Tagesziel an. Ein verpasster Tag senkt es nicht.</p>
+    <button class="ghost" id="undoSet">Letzten Satz von heute löschen</button>
+  </details>
+  <p class="small" style="text-align:center">Deine Daten bleiben in diesem Browser auf diesem Gerät.</p>
+</main>
+
+<div id="pad" hidden>
+  <div class="top">
+    <button class="btn2" id="minus">−1</button>
+    <span class="label" id="padGoal"></span>
+    <button class="btn2 done" id="finish">Fertig</button>
+  </div>
+  <div class="count">
+    <div class="n" id="n">0</div>
+    <div class="status" id="status"></div>
+  </div>
+  <div id="padBottom"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const LS = "nasenstuetz-v2";
+  const EX = {
+    push:  { name: "Liegestütze", short: "Push-ups", mode: "tap",   unit: "",  start: 20, step: 1, agg: "sum",
+             hint: "Handy flach unter die Brust legen, gern erhöht auf ein Buch. Bei jeder Wiederholung mit der Nase aufs Display tippen." },
+    squat: { name: "Squats", short: "Squats", mode: "lift", unit: "", start: 20, step: 1, agg: "sum", sens: 5,
+             hint: "Handy mit beiden Händen vor der Brust halten. Nach dem Countdown zählt jede Kniebeuge automatisch." },
+    situp: { name: "Situps", short: "Situps", mode: "tilt", unit: "", start: 15, step: 1, agg: "sum", sens: 5,
+             hint: "Hinlegen, Handy flach auf die Brust, mit verschränkten Armen halten. Nach dem Countdown zählt jedes Aufrichten." },
+    plank: { name: "Plank", short: "Plank", mode: "timer", unit: "s", start: 30, step: 5, agg: "max",
+             hint: "Startet nach 3 Sekunden. Beim Ziel piept es. Tippe auf Fertig, wenn du absetzt." }
+  };
+  const ORDER = ["push", "squat", "situp", "plank"];
+
+  let state = { active: "push", ex: {} };
+  try { const s = JSON.parse(localStorage.getItem(LS) || "null"); if (s && s.ex) state = s; } catch (e) {}
+  try { // Daten aus Version 1 übernehmen
+    const old = JSON.parse(localStorage.getItem("nasenstuetz-v1") || "null");
+    if (old && old.days && !state.ex.push) state.ex.push = { start: old.startGoal, step: old.step, days: old.days };
+  } catch (e) {}
+  for (const id of ORDER) {
+    const e = state.ex[id] = state.ex[id] || {};
+    if (!e.days) e.days = {};
+    if (!(e.start > 0)) e.start = EX[id].start;
+    if (!(e.step >= 0)) e.step = EX[id].step;
+    if (EX[id].sens && !(e.sens > 0)) e.sens = EX[id].sens;
+  }
+  if (!EX[state.active]) state.active = "push";
+
+  const $ = id => document.getElementById(id);
+  const key = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const today = () => key(new Date());
+  const cur = () => state.ex[state.active];
+  const def = () => EX[state.active];
+  function save() { try { localStorage.setItem(LS, JSON.stringify(state)); } catch (e) {} }
+
+  function value(id, d) {
+    if (!d || !d.sets || !d.sets.length) return 0;
+    return EX[id].agg === "max" ? Math.max(...d.sets) : d.sets.reduce((a, b) => a + b, 0);
+  }
+  function goalFor(id, dayKey) {
+    const e = state.ex[id], d = e.days[dayKey];
+    if (d && d.goal) return d.goal;
+    let hits = 0;
+    for (const k of Object.keys(e.days)) { const x = e.days[k]; if (k < dayKey && x.goal && value(id, x) >= x.goal) hits++; }
+    return e.start + hits * e.step;
+  }
+  function streak(id) {
+    const e = state.ex[id]; let n = 0; const d = new Date();
+    if (!(value(id, e.days[key(d)]) >= goalFor(id, key(d)))) d.setDate(d.getDate() - 1);
+    for (;;) { const k = key(d), x = e.days[k]; if (x && value(id, x) >= (x.goal || goalFor(id, k))) { n++; d.setDate(d.getDate() - 1); } else break; }
+    return n;
+  }
+  const fmt = (id, v) => EX[id].unit === "s" ? (v >= 60 ? Math.floor(v / 60) + ":" + String(v % 60).padStart(2, "0") : v + " s") : String(v);
+
+  function render() {
+    const id = state.active, e = cur(), D = def(), k = today(), d = e.days[k], g = goalFor(id, k), t = value(id, d);
+    $("date").textContent = new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
+
+    const tabs = $("tabs"); tabs.textContent = "";
+    for (const x of ORDER) {
+      const b = document.createElement("button"); b.className = "tab"; b.setAttribute("role", "tab");
+      b.setAttribute("aria-selected", String(x === id)); b.textContent = EX[x].short;
+      if (value(x, state.ex[x].days[k]) >= goalFor(x, k)) { const dot = document.createElement("span"); dot.className = "dot"; b.append(dot); }
+      b.addEventListener("click", () => { state.active = x; save(); render(); });
+      tabs.append(b);
+    }
+
+    $("todayTotal").textContent = fmt(id, t);
+    $("goalText").textContent = t >= g ? "Ziel " + fmt(id, g) + " geschafft" : (D.agg === "max" ? "Ziel heute: " + fmt(id, g) + " am Stück" : "von " + g + " heute");
+    $("arc").style.strokeDashoffset = 326.7 * (1 - Math.min(1, t / g));
+    $("arc").style.stroke = t >= g ? "var(--good)" : "var(--accent)";
+    $("streak").textContent = streak(id);
+    let best = 0, all = 0;
+    for (const x of Object.values(e.days)) for (const s of x.sets || []) { best = Math.max(best, s); all += s; }
+    $("best").textContent = fmt(id, best);
+    $("bestLabel").textContent = D.agg === "max" ? "Längste" : "Bester Satz";
+    $("allTime").textContent = D.unit === "s" ? Math.round(all / 60) + " min" : all;
+    $("start").textContent = D.mode === "timer" ? "Plank starten" : "Satz starten";
+    $("hint").textContent = D.hint;
+
+    const sets = $("sets"); sets.textContent = "";
+    if (!d || !d.sets.length) { const s = document.createElement("span"); s.className = "empty"; s.textContent = "Noch kein Satz heute."; sets.append(s); }
+    else d.sets.forEach((s, i) => { const c = document.createElement("span"); c.className = "chip"; c.textContent = (i + 1) + ". · " + fmt(id, s); sets.append(c); });
+
+    const bars = $("bars"); bars.textContent = "";
+    const days = []; for (let i = 13; i >= 0; i--) { const x = new Date(); x.setDate(x.getDate() - i); days.push(x); }
+    const max = Math.max(g, ...days.map(x => value(id, e.days[key(x)])));
+    for (const x of days) {
+      const kk = key(x), dd = e.days[kk], tt = value(id, dd), gg = (dd && dd.goal) || goalFor(id, kk);
+      const b = document.createElement("div"); b.className = "bar"; b.title = x.toLocaleDateString("de-DE") + ": " + fmt(id, tt);
+      const col = document.createElement("div"); col.className = "col";
+      const s = document.createElement("span"); s.style.height = (tt / max * 100) + "%";
+      if (tt) s.className = tt >= gg ? "hit" : "part";
+      col.append(s);
+      const l = document.createElement("i"); l.textContent = x.getDate();
+      b.append(col, l); bars.append(b);
+    }
+    $("startGoal").value = e.start; $("step").value = e.step;
+    $("startGoalLabel").textContent = D.unit === "s" ? "Ziel am Anfang (Sekunden)" : "Tagesziel am Anfang";
+    $("stepLabel").textContent = D.unit === "s" ? "Plus Sekunden pro geschafftem Tag" : "Plus pro geschafftem Tag";
+    $("sensField").hidden = !D.sens;
+    if (D.sens) $("sens").value = e.sens;
+  }
+
+  /* ---------- Ton & Display ---------- */
+  let audio = null, wakeLock = null;
+  function beep(freq, len) {
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      if (audio.state === "suspended") audio.resume();
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = freq || 880; g.gain.setValueAtTime(.2, audio.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, audio.currentTime + (len || .12));
+      o.connect(g).connect(audio.destination); o.start(); o.stop(audio.currentTime + (len || .12) + .01);
+    } catch (e) {}
+  }
+  async function keepAwake() { try { wakeLock = await navigator.wakeLock.request("screen"); } catch (e) {} }
+  function releaseAwake() { try { wakeLock && wakeLock.release(); } catch (e) {} wakeLock = null; }
+  document.addEventListener("visibilitychange", () => { if (!$("pad").hidden && document.visibilityState === "visible") keepAwake(); });
+
+  /* ---------- Satz ---------- */
+  let count = 0, lastTap = 0, armed = false, timers = [], goalBeeped = false;
+  let motionOn = false, sm = null;
+
+  function setCount(v, pop) {
+    count = Math.max(0, v);
+    const n = $("n"); n.textContent = def().unit === "s" ? fmt(state.active, count) : count;
+    if (pop) { n.classList.remove("pop"); void n.offsetWidth; n.classList.add("pop"); }
+  }
+  function status(t) { $("status").textContent = t; }
+  function clearTimers() { timers.forEach(t => clearInterval(t)); timers = []; }
+
+  function countdown(sec, done) {
+    let s = sec; status("Los in " + s + " …"); beep(600, .08);
+    const t = setInterval(() => {
+      s--;
+      if (s > 0) { status("Los in " + s + " …"); beep(600, .08); }
+      else { clearInterval(t); beep(1000, .2); done(); }
+    }, 1000);
+    timers.push(t);
+  }
+
+  function buildBottom(mode) {
+    const b = $("padBottom"); b.textContent = "";
+    if (mode === "tap") {
+      const t = document.createElement("div"); t.className = "target";
+      t.innerHTML = "Nase hierhin.<br>Der ganze Bildschirm zählt.";
+      b.append(t);
+    } else if (mode === "lift" || mode === "tilt") {
+      const m = document.createElement("div"); m.className = "meter";
+      m.innerHTML = '<div class="track"><div class="fill" id="mfill"></div><div class="thr"></div></div><div class="cap"><span>Bewegung</span><span>Zählschwelle</span></div>';
+      b.append(m);
+    }
+  }
+
+  $("start").addEventListener("click", async () => {
+    const D = def(), id = state.active, k = today();
+    // Bewegungssensor-Erlaubnis muss direkt im Tipp passieren (iOS)
+    if (D.mode === "lift" || D.mode === "tilt") {
+      if (typeof DeviceMotionEvent === "undefined") { alertBox("Dieses Gerät meldet keinen Bewegungssensor."); return; }
+      if (typeof DeviceMotionEvent.requestPermission === "function") {
+        try {
+          const r = await DeviceMotionEvent.requestPermission();
+          if (r !== "granted") { alertBox("Ohne Zugriff auf Bewegung und Ausrichtung kann die App nicht zählen. Erlaube es beim nächsten Start."); return; }
+        } catch (e) { alertBox("Die Freigabe für Bewegung hat nicht geklappt. Öffne die Seite in Safari über den https-Link."); return; }
+      }
+    }
+    beep(880, .05);
+    goalBeeped = false; armed = false; setCount(0); status("");
+    const g = goalFor(id, k), left = Math.max(0, g - value(id, state.ex[id].days[k]));
+    $("padGoal").textContent = D.agg === "max" ? "Ziel " + fmt(id, g) : (left ? "Noch " + left + " bis zum Ziel" : "Ziel schon erreicht");
+    $("minus").hidden = D.mode === "timer";
+    buildBottom(D.mode);
+    $("pad").hidden = false;
+    keepAwake();
+
+    if (D.mode === "tap") { armed = true; status("Tippen mit der Nase"); }
+    if (D.mode === "timer") {
+      countdown(3, () => {
+        const t0 = Date.now(); armed = true; status("Halten");
+        timers.push(setInterval(() => {
+          setCount(Math.floor((Date.now() - t0) / 1000));
+          if (!goalBeeped && count >= g) { goalBeeped = true; beep(1200, .4); status("Ziel geschafft. Weiter halten oder Fertig."); }
+        }, 250));
+      });
+    }
+    if (D.mode === "lift" || D.mode === "tilt") startMotion(D.mode);
+  });
+
+  $("pad").addEventListener("pointerdown", e => {
+    if (e.target.closest("button") || def().mode !== "tap" || !armed) return;
+    const now = Date.now(); if (now - lastTap < 550) return;
+    lastTap = now; setCount(count + 1, true); beep();
+  });
+  $("minus").addEventListener("click", () => setCount(count - 1));
+  $("finish").addEventListener("click", () => {
+    stopMotion(); clearTimers(); releaseAwake(); $("pad").hidden = true;
+    if (count > 0) {
+      const id = state.active, k = today(), e = state.ex[id];
+      if (!e.days[k]) e.days[k] = { goal: goalFor(id, k), sets: [] };
+      e.days[k].sets.push(count); save();
+    }
+    render();
+  });
+
+  /* ---------- Bewegungssensor ----------
+     Squats: Betrag der Beschleunigung minus Ruhewert. Ganz unten bremst du ab und drückst hoch,
+     das ergibt pro Kniebeuge eine klare Spitze über dem Ruhewert. Gezählt wird jede Spitze über der Schwelle.
+     Situps: Neigung des Handys gegenüber der Liegeposition. Über der Schwelle = oben, unter 40 % davon = wieder unten. */
+  function thresholds(mode) {
+    const s = cur().sens || 5; // 1 = unempfindlich, 10 = sehr empfindlich
+    return mode === "lift" ? 3.4 - s * 0.25 : 70 - s * 4; // m/s² bzw. Grad
+  }
+  function onMotion(ev) {
+    if (!sm) return;
+    const a = ev.accelerationIncludingGravity; if (!a || a.x == null) return;
+    const v = [a.x, a.y, a.z];
+    if (!sm.g) sm.g = v.slice();
+    for (let i = 0; i < 3; i++) sm.g[i] = sm.g[i] * 0.9 + v[i] * 0.1;
+    const mag = Math.hypot(v[0], v[1], v[2]);
+    const now = performance.now();
+    if (sm.mode === "lift") {
+      sm.base = sm.base == null ? mag : sm.base * 0.995 + mag * 0.005;
+      sm.f = sm.f == null ? 0 : sm.f * 0.6 + (mag - sm.base) * 0.4;
+      const thr = thresholds("lift");
+      meter(sm.f / thr);
+      if (!armed) return;
+      if (!sm.up && sm.f > thr && now - sm.last > 900) { sm.up = true; sm.last = now; setCount(count + 1, true); beep(); }
+      else if (sm.up && sm.f < thr * 0.25) sm.up = false;
+    } else {
+      if (!armed || !sm.ref) { meter(0); return; }
+      const g = sm.g, r = sm.ref;
+      const cos = (g[0] * r[0] + g[1] * r[1] + g[2] * r[2]) / (Math.hypot(...g) * Math.hypot(...r) || 1);
+      const ang = Math.acos(Math.max(-1, Math.min(1, cos))) * 180 / Math.PI;
+      const thr = thresholds("tilt");
+      meter(ang / thr);
+      if (!sm.up && ang > thr && now - sm.last > 900) { sm.up = true; sm.last = now; setCount(count + 1, true); beep(); }
+      else if (sm.up && ang < thr * 0.4) sm.up = false;
+    }
+  }
+  function meter(ratio) {
+    const f = document.getElementById("mfill"); if (!f) return;
+    f.style.width = Math.max(0, Math.min(100, ratio * 50)) + "%";
+  }
+  function startMotion(mode) {
+    sm = { mode, g: null, base: null, f: null, up: false, last: 0, ref: null, seen: false };
+    const seenCheck = setTimeout(() => { if (sm && !sm.seen) status("Kein Sensorsignal. Prüfe in Safari unter aA → Website-Einstellungen, ob Bewegung erlaubt ist."); }, 4500);
+    timers.push(seenCheck);
+    const wrapped = ev => { if (sm) sm.seen = true; onMotion(ev); };
+    sm.handler = wrapped;
+    window.addEventListener("devicemotion", wrapped);
+    motionOn = true;
+    countdown(mode === "tilt" ? 5 : 3, () => {
+      if (!sm) return;
+      if (mode === "tilt") sm.ref = sm.g ? sm.g.slice() : null;
+      armed = true;
+      status(mode === "lift" ? "Zählt jede Kniebeuge" : "Zählt jedes Aufrichten");
+    });
+  }
+  function stopMotion() {
+    if (motionOn && sm && sm.handler) window.removeEventListener("devicemotion", sm.handler);
+    motionOn = false; sm = null; armed = false;
+  }
+
+  function alertBox(msg) { $("hint").textContent = msg; $("hint").style.color = "var(--accent)"; setTimeout(() => { $("hint").style.color = ""; render(); }, 6000); }
+
+  /* ---------- Einstellungen ---------- */
+  function bindNum(elId, prop, min, max) {
+    $(elId).addEventListener("change", () => {
+      const v = Math.round(Number($(elId).value));
+      if (v >= min && v <= max) { cur()[prop] = v; save(); }
+      render();
+    });
+  }
+  bindNum("startGoal", "start", 1, 1000); bindNum("step", "step", 0, 60);
+  $("sens").addEventListener("change", () => { cur().sens = Number($("sens").value); save(); });
+  $("undoSet").addEventListener("click", () => { const d = cur().days[today()]; if (d && d.sets.length) { d.sets.pop(); save(); render(); } });
+
+  render();
+})();
+</script>
+</body>
+</html>
