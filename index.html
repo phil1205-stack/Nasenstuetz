@@ -219,6 +219,13 @@ details.box summary { cursor: pointer; font-weight: 600; }
 .unlock { display: grid; justify-items: center; gap: 6px; animation: rise .6s cubic-bezier(.2,1.4,.4,1) both; }
 @keyframes rise { from { transform: scale(.3) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .unlock { animation: none; } }
+.daily { border-color: color-mix(in srgb, var(--k) 35%, var(--line)); }
+.recs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.rec { display: grid; gap: 3px; }
+.rec i { display: block; height: 6px; border-radius: 3px; }
+.rec b { font-size: 13px; }
+.rec span { font-size: 12px; color: var(--muted); }
+.joker { font-size: 15px; letter-spacing: 2px; }
 #fx { position: fixed; inset: 0; z-index: 80; pointer-events: none; width: 100%; height: 100%; }
 @media (prefers-reduced-motion: reduce) { .stage .big.pop { animation: none; } #run .track i { transition: none; } }
 </style>
@@ -286,6 +293,12 @@ const ROUTINES = {
     ["Hüftkreisen", "Hände an die Hüfte, große Kreise in beide Richtungen.", 30, false],
     ["Ausfallschritt mit Drehung", "Tiefer Ausfallschritt, Hand innen am Boden, anderen Arm zur Decke drehen.", 30, true],
     ["Tiefe Hocke halten", "So tief wie bequem hocken, Ellbogen schieben die Knie sanft nach außen.", 40, false]
+  ]},
+  desk: { name: "Büro-Reset", color: "--c-stretch", kind: "stretch", min: 4, items: [
+    ["Nacken seitlich", "Am Schreibtisch aufrecht sitzen, Ohr Richtung Schulter, die andere Schulter zieht nach unten.", 25, true],
+    ["Brust am Türrahmen", "Nach langem Sitzen fallen die Schultern nach vorn. Öffne die Brust bewusst.", 30, false],
+    ["Schulter quer", "Arm vor der Brust heranziehen, Schulter bleibt unten.", 20, true],
+    ["Hüftbeuger im Ausfallschritt", "Sitzen verkürzt die Hüftbeuger. Becken nach vorn, Po anspannen.", 25, true]
   ]},
   bandFull: { name: "Band Ganzkörper", color: "--c-band", kind: "band", min: 20, rounds: 3, items: [
     ["Rudern im Sitzen", "Band um die Füße, Ellbogen nah am Körper nach hinten ziehen, Schulterblätter zusammen.", 12],
@@ -395,7 +408,37 @@ if (S.setup.done && !S.migT) {
   S.migT = true; save();
 }
 if (S.setup.done && !S.badgesSeen) { /* wird nach dem ersten render gesetzt */ }
+const DAILY = [
+  ["Wandsitzen", "Rücken an die Wand, Knie im rechten Winkel, 45 Sekunden halten.", "squat", "--c-squat"],
+  ["10 Extra-Liegestütze", "Zehn saubere Liegestütze, irgendwann heute.", "push", "--c-push"],
+  ["Tiefe Hocke", "Eine Minute in der tiefen Hocke verbringen, gern in Etappen.", "deepSquat", "--c-stretch"],
+  ["Plank 40 Sekunden", "Einmal 40 Sekunden sauber halten.", "plank", "--c-plank"],
+  ["Nacken lockern", "Je Seite 30 Sekunden Nacken seitlich dehnen.", "neck", "--c-stretch"],
+  ["Langsame Squats", "15 Squats, jeweils 3 Sekunden runter.", "squat", "--c-squat"],
+  ["Hüfte öffnen", "Hüftbeuger im Ausfallschritt, je Seite 45 Sekunden.", "hipFlexor", "--c-stretch"],
+  ["Kobra", "Dreimal 20 Sekunden Kobra, dazwischen kurz ablegen.", "cobra", "--c-stretch"],
+  ["Brust öffnen", "Eine Minute Brustdehnung am Türrahmen.", "chestDoor", "--c-stretch"],
+  ["15 Situps", "Fünfzehn ruhige Situps.", "situp", "--c-situp"],
+  ["Treppe statt Aufzug", "Heute jede Treppe zu Fuß nehmen.", "lungeTwist", "--c-free"],
+  ["Beinrückseite", "Eine Minute Rumpfbeuge im Sitzen, ruhig atmen.", "hamstring", "--c-stretch"]
+];
+function dailyToday() { const k = todayKey(); let h = 0; for (const c of k) h = (h * 31 + c.charCodeAt(0)) >>> 0; return DAILY[h % DAILY.length]; }
+function dailyDone(k) { return !!(S.log[k || todayKey()] && S.log[k || todayKey()].items.some(i => i.mode === "daily")); }
+function daysSince(ex) {
+  const ks = Object.keys(S.log).sort().reverse();
+  for (const k of ks) if (S.log[k].items.some(i => i.type === ex && i.mode !== "test")) return Math.floor((new Date(todayKey() + "T12:00") - new Date(k + "T12:00")) / 864e5);
+  return null;
+}
+const ACCENTS = {
+  sunrise: { name: "Sonnenaufgang", lvl: 1, a: "#FF8A3D", b: "#FF5A6E" },
+  ocean:   { name: "Ozean",         lvl: 3, a: "#22B8CF", b: "#3B6CF0" },
+  forest:  { name: "Wald",          lvl: 5, a: "#3DBE7A", b: "#11806E" },
+  berry:   { name: "Beere",         lvl: 7, a: "#B65CF0", b: "#EE4F8C" },
+  gold:    { name: "Gold",          lvl: 9, a: "#F7B733", b: "#F0561A" }
+};
 function applyTheme() {
+  const ac = ACCENTS[S.setup.accent] || ACCENTS.sunrise, rs = document.documentElement.style;
+  rs.setProperty("--hero-a", ac.a); rs.setProperty("--hero-b", ac.b);
   const t = S.setup.theme || "light"; document.documentElement.setAttribute("data-theme", t);
   const dark = t === "dark" || (t === "system" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
   const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute("content", dark ? "#131B2A" : "#F3F6FA");
@@ -419,7 +462,21 @@ function weekStats(mon) {
   if (S.setup.cycle === "daily") plan = 5;
   return { done, plan, stretch };
 }
-function weekStreak() {
+function weekStreakInfo() {
+  const keys = Object.keys(S.log).filter(hasProgram).sort();
+  const cur = monday(new Date());
+  if (!keys.length) { const w = weekStats(cur); return { streak: w.done >= w.plan && w.done > 0 ? 1 : 0, jokers: 0, used: 0 }; }
+  let m = monday(new Date(keys[0] + "T12:00")), streak = 0, jokers = 0, full = 0, used = 0;
+  while (m <= cur) {
+    const w = weekStats(m), ok = w.done >= w.plan && w.done > 0, isCur = dkey(m) === dkey(cur);
+    if (ok) { streak++; full++; if (full % 4 === 0) jokers = Math.min(2, jokers + 1); }
+    else if (!isCur) { if (jokers > 0 && streak > 0) { jokers--; used++; } else streak = 0; }
+    m.setDate(m.getDate() + 7);
+  }
+  return { streak, jokers, used };
+}
+function weekStreak() { return weekStreakInfo().streak; }
+function weekStreakOld() {
   let n = 0; const m = monday(new Date());
   const cur = weekStats(m); if (cur.done >= cur.plan) n++;
   for (let w = 1; w < 520; w++) {
@@ -547,13 +604,14 @@ function statsHTML() {
 const LEVELS = ["Neustart", "Einsteiger", "Dranbleiber", "Routinier", "Kämpfer", "Athlet", "Eisern", "Maschine", "Titan", "Legende"];
 function lifetime() {
   const keys = Object.keys(S.log).sort(), a = aggregate(keys);
-  let stretchN = 0, bandN = 0, minis = 0, tests = 0, allFour = 0, comebacks = 0, prev = null;
+  let dailies = 0, stretchN = 0, bandN = 0, minis = 0, tests = 0, allFour = 0, comebacks = 0, prev = null;
   const vars = new Set();
   for (const k of keys) {
     const items = S.log[k].items, types = new Set();
     for (const it of items) {
       if (it.mode === "routine") { if (ROUTINES[it.type] && ROUTINES[it.type].kind === "band") bandN++; else stretchN++; }
       if (it.mode === "mini") minis++;
+      if (it.mode === "daily") dailies++;
       if (it.mode === "test" || it.test) tests++;
       if (it.variant) vars.add(it.variant);
       if (EX[it.type]) types.add(it.type);
@@ -565,8 +623,8 @@ function lifetime() {
     }
   }
   const flexGain = S.flex.length > 1 ? Math.max(...S.flex.map(f => f[1])) - S.flex[0][1] : 0;
-  const xp = a.push + a.squat + a.situp + Math.round(a.plank / 2) + (a.stretch + a.band) * 5 + a.days * 50 + tests * 20;
-  return Object.assign(a, { stretchN, bandN, minis, tests, allFour, comebacks, vars: vars.size, flexGain, xp, streak: weekStreak() });
+  const xp = a.push + a.squat + a.situp + Math.round(a.plank / 2) + (a.stretch + a.band) * 5 + a.days * 50 + tests * 20 + dailies * 25;
+  return Object.assign(a, { dailies, stretchN, bandN, minis, tests, allFour, comebacks, vars: vars.size, flexGain, xp, streak: weekStreak() });
 }
 function levelOf(xp) { // Level n braucht 150 · n · (n+1) / 2 Punkte
   let n = 0; while (150 * (n + 1) * (n + 2) / 2 <= xp) n++;
@@ -597,6 +655,8 @@ const BADGES = [
   ["band10",  "Gummiband",          "10 Band-Workouts",                "B",    "--c-band",    L => [L.bandN, 10]],
   ["mini",    "Tag gerettet",       "Mini-Version statt Ausfall",      "M",    "--c-situp",   L => [L.minis, 1]],
   ["comeback","Comeback",           "Nach über 7 Tagen Pause zurück",  "C",    "--c-plank",   L => [L.comebacks, 1]],
+  ["daily10", "Aufgabenjäger",      "10 Tagesaufgaben erledigt",       "10",   "--c-situp",   L => [L.dailies, 10]],
+  ["joker",   "Gerettet",           "Einen Joker verbraucht und weitergemacht", "J", "--c-squat", L => [weekStreakInfo().used, 1]],
   ["lvl5",    "Kämpfer",            "Level 5 erreicht",                "L5",   "--c-free",    L => [levelOf(L.xp).n, 5]]
 ];
 function badgeState(L) { return BADGES.map(([id, name, desc, sym, color, fn]) => { const [v, goal] = fn(L); return { id, name, desc, sym, color, v: Math.min(v, goal), goal, got: v >= goal }; }); }
@@ -672,6 +732,20 @@ function blockHTML(ex) {
   const reps = t.map((x, i) => `<span>${fmt(ex, x)}${i === t.length - 1 ? "+" : ""}</span>`).join('<span class="x">·</span>');
   return `<div class="block">${illo(D.pose, D.color, 54)}<div><div class="name">${name}</div><div class="reps" style="color:${cv(D.color)}">${reps}</div></div></div>`;
 }
+function dailyHTML() {
+  const [n, d, pose, col] = dailyToday(), done = dailyDone();
+  return `<div class="card pad daily" style="--k:${cv(col)}"><div class="row" style="align-items:center">${illo(pose, col, 70)}<div style="flex:1;min-width:0"><span class="label">Tagesaufgabe · +25 Punkte</span><h3>${n}</h3><p class="small">${d}</p></div></div>
+    ${done ? `<div class="done-note">✓ Erledigt. Morgen gibt es eine neue.</div>` : `<button class="go alt" id="dailyDone">Erledigt</button>`}</div>`;
+}
+function recoveryHTML() {
+  const groups = [["Brust & Arme", ["push"], "--c-push"], ["Beine", ["squat"], "--c-squat"], ["Rumpf", ["situp", "plank"], "--c-plank"]];
+  const chip = ([n, exs, col]) => {
+    const ds = exs.map(daysSince).filter(x => x != null), d = ds.length ? Math.min(...ds) : null;
+    const st = d == null ? ["noch nicht trainiert", 1] : d === 0 ? ["heute trainiert", .35] : d === 1 ? ["erholt sich", .6] : ["bereit", 1];
+    return `<div class="rec"><i style="background:${cv(col)};opacity:${st[1]}"></i><b>${n}</b><span>${st[0]}</span></div>`;
+  };
+  return `<div class="card pad" style="gap:8px"><span class="label">Erholung · Muskeln brauchen etwa 48 Stunden</span><div class="recs">${groups.map(chip).join("")}</div></div>`;
+}
 function brandHTML() {
   return `<div class="brand"><span class="logo">${'<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 18h18" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M5 15.5l10-4.5M13.5 11.6l.6 5" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="17.6" cy="9.2" r="2.3" fill="#fff"/></svg>'}</span><h1>${APP_NAME}</h1></div>`;
 }
@@ -703,7 +777,7 @@ function render() {
       <button class="go alt" id="forceToday">Trotzdem Plan-Training machen</button></div></div>`;
   }
   const single = EX_ORDER.map(ex => `<button class="tile" style="--k:${cv(EX[ex].color)}" data-single="${ex}">${illo(EX[ex].pose, EX[ex].color, 64)}<b>${EX[ex].name}</b></button>`).join("");
-  const tiles = [["evening", ROUTINES.evening], ["morning", ROUTINES.morning], ["after", ROUTINES.after]];
+  const tiles = [["evening", ROUTINES.evening], ["morning", ROUTINES.morning], ["desk", ROUTINES.desk], ["after", ROUTINES.after]];
   if (S.setup.band) tiles.push(["bandFull", ROUTINES.bandFull], ["bandPosture", ROUTINES.bandPosture]);
   let tileHTML = tiles.map(([id, r]) => `<button class="tile" style="--k:${cv(r.color)}" data-routine="${id}">${illo(POSE_OF[r.items[0][0]], r.color, 92)}<span class="label">${r.kind === "band" ? "Band" : "Dehnen"} · ${r.min} Min</span><b>${r.name}</b></button>`).join("");
   tileHTML += `<button class="tile" style="--k:${cv("--c-free")}" id="custom">${illo("deepSquat", "--c-free", 92)}<span class="label">Selbst zusammenstellen</span><b>Eigenes Training</b></button>`;
@@ -727,9 +801,13 @@ function render() {
   <header class="top">${brandHTML()}</header>
   ${weekStrip()}
   ${reentry}
+  ${backupDue() ? `<div class="card pad"><div class="row"><div><h3>Wochensicherung</h3><p class="small">${S.lastBackup ? "Letzte Sicherung vor über einer Woche." : "Noch keine Sicherung."} Ein Tippen, dann im Teilen-Menü „In Dateien sichern“ und iCloud Drive wählen.</p></div></div>
+    <div class="row"><button class="go" id="bkNudge" style="font-size:19px;padding:13px">Jetzt sichern</button><button class="go alt" id="bkLater" style="width:auto;font-size:16px;padding:13px 16px">Später</button></div></div>` : ""}
   ${today}
-  <div class="streak card"><div class="flame">${streak}</div><div><div style="font-weight:600">${streak === 1 ? "Woche" : "Wochen"} in Folge im Plan</div>
-    <div class="small">Diese Woche: Training ${ws.done}/${ws.plan} · Dehnen ${ws.stretch}/${S.setup.stretchGoal}${S.setup.cycle !== "daily" ? " · Termin " + S.setup.time + " Uhr" : ""}</div></div></div>
+  <div class="streak card"><div class="flame">${streak}</div><div style="flex:1"><div class="row"><span style="font-weight:600">${streak === 1 ? "Woche" : "Wochen"} in Folge im Plan</span><span class="joker" title="Joker retten eine verpasste Woche">${"🛡".repeat(weekStreakInfo().jokers) || ""}</span></div>
+    <div class="small">${weekStreakInfo().jokers ? weekStreakInfo().jokers + " Joker: retten eine verpasste Woche. " : "Alle 4 vollen Wochen gibt es einen Joker. "}Diese Woche: Training ${ws.done}/${ws.plan} · Dehnen ${ws.stretch}/${S.setup.stretchGoal}${S.setup.cycle !== "daily" ? " · Termin " + S.setup.time + " Uhr" : ""}</div></div></div>
+  ${dailyHTML()}
+  ${recoveryHTML()}
   <section style="display:grid;gap:10px">${gameHTML()}</section>
   <section style="display:grid;gap:10px"><span class="label">Nur eine Übung · zählt für deinen Plan</span><div class="tiles four">${single}</div></section>
   <section style="display:grid;gap:10px"><span class="label">Dehnen, Band und mehr</span><div class="tiles">${tileHTML}</div></section>
@@ -771,13 +849,14 @@ function settingsHTML() {
     <div class="row"><label for="restSel">Pause zwischen Sätzen</label><select id="restSel"><option value="auto" ${S.setup.restAuto ? "selected" : ""}>Automatisch</option>${[45, 60, 90, 120].map(s => `<option value="${s}" ${!S.setup.restAuto && S.setup.rest === s ? "selected" : ""}>${s} Sekunden</option>`).join("")}</select></div>
     <p class="small">Automatisch: 60 Sekunden zwischen den ersten Sätzen, 90 Sekunden vor den letzten beiden, damit du im Maximal-Satz noch Kraft hast.</p>
     <div class="row"><span>Liegestütz-Varianten im Wechsel</span><button class="chip" id="varsT" aria-pressed="${S.setup.vars}">${S.setup.vars ? "An" : "Aus"}</button></div>
+    <div class="row"><label for="accentSel">Farbwelt</label><select id="accentSel">${Object.entries(ACCENTS).map(([id, a]) => { const ok = levelOf(lifetime().xp).n >= a.lvl; return `<option value="${id}" ${(S.setup.accent || "sunrise") === id ? "selected" : ""} ${ok ? "" : "disabled"}>${a.name}${ok ? "" : " · ab Level " + a.lvl}</option>`; }).join("")}</select></div>
     <div class="row"><label for="themeSel">Darstellung</label><select id="themeSel">${[["light", "Hell"], ["dark", "Dunkel"], ["system", "Wie iPhone"]].map(([v, n]) => `<option value="${v}" ${S.setup.theme === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>
     <div class="row"><label for="sensSq">Squats: Empfindlichkeit</label><input type="range" id="sensSq" min="1" max="10" value="${S.prog.squat.sens}"></div>
     <div class="row"><label for="sensSu">Situps: Empfindlichkeit</label><input type="range" id="sensSu" min="1" max="10" value="${S.prog.situp.sens}"></div>
     <span class="label" style="margin-top:6px">Datensicherung</span>
     <p class="small">Deine Daten liegen nur in Safari auf diesem Gerät. Sichere sie ab und zu als Datei, zum Beispiel in iCloud Drive. Damit kannst du sie auch auf ein neues Handy mitnehmen.</p>
     <div class="row"><button class="btn-s" id="bkExport">Sicherung speichern</button><label class="btn-s" for="bkFile" style="cursor:pointer">Sicherung laden</label><input type="file" id="bkFile" accept=".json,application/json" hidden></div>
-    <p class="small" id="bkMsg"></p>
+    <p class="small" id="bkMsg">${S.lastBackup ? "Letzte Sicherung: " + S.lastBackup.split("-").reverse().join(".") : "Noch keine Sicherung gemacht."}</p>
     <button class="linkbtn" id="redoTest">Einstufung neu machen</button>
   </div>`;
 }
@@ -855,7 +934,10 @@ function bindHome() {
     S.reentryAck = lastTrainingKey(); save(); render();
   });
   const rn = $("#reNo"); if (rn) rn.addEventListener("click", () => { S.reentryAck = lastTrainingKey(); save(); render(); });
-  $("#bkExport").addEventListener("click", async () => {
+  $("#bkExport").addEventListener("click", () => doBackup($("#bkMsg")));
+  const bn = $("#bkNudge"); if (bn) bn.addEventListener("click", () => doBackup(null));
+  const bl = $("#bkLater"); if (bl) bl.addEventListener("click", () => { S.backupSnooze = todayKey(); save(); render(); });
+  if (false) $("#x").addEventListener("click", async () => {
     const name = "nasenstuetz-sicherung-" + todayKey() + ".json";
     const blob = new Blob([JSON.stringify(S)], { type: "application/json" });
     try {
@@ -882,6 +964,8 @@ function bindHome() {
     rd.readAsText(f);
   });
   $("#varsT").addEventListener("click", () => { S.setup.vars = !S.setup.vars; save(); render(); });
+  const dd = $("#dailyDone"); if (dd) dd.addEventListener("click", () => { logAdd(todayKey(), { type: "daily", mode: "daily", name: dailyToday()[0] }); save(); celebrate(false); const a = newAchievements(); render(); if (a.badges.length || a.level) setTimeout(() => celebrate(true), 400); });
+  $("#accentSel").addEventListener("change", e => { S.setup.accent = e.target.value; save(); render(); });
   $("#themeSel").addEventListener("change", e => { S.setup.theme = e.target.value; save(); render(); });
   document.querySelectorAll("[data-single]").forEach(b => b.addEventListener("click", () => startSingle(b.dataset.single)));
   $("#custom").addEventListener("click", startCustom);
@@ -897,6 +981,25 @@ function bindHome() {
     if ($("#flexIn").value === "" || isNaN(v) || v < -60 || v > 60) return;
     const k = todayKey(); S.flex = S.flex.filter(x => x[0] !== k); S.flex.push([k, v]); save(); render();
   });
+}
+async function doBackup(msgEl) {
+  const name = "nasenstuetz-sicherung-" + todayKey() + ".json";
+  const blob = new Blob([JSON.stringify(S)], { type: "application/json" });
+  const doneMsg = t => { S.lastBackup = todayKey(); save(); if (msgEl) msgEl.textContent = t; else render(); };
+  try {
+    const file = new File([blob], name, { type: "application/json" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: name }); doneMsg("Sicherung erstellt."); return; }
+  } catch (e) { if (e && e.name === "AbortError") return; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  doneMsg("Sicherung als Datei gespeichert.");
+}
+function backupDue() {
+  if (!Object.keys(S.log).length || S.backupSnooze === todayKey()) return false;
+  const since = S.lastBackup ? (new Date(todayKey() + "T12:00") - new Date(S.lastBackup + "T12:00")) / 864e5 : 99;
+  if (since < 7) return false;
+  const w = weekStats(monday(new Date()));
+  return hasProgram(todayKey()) && (w.done >= w.plan || since >= 10);
 }
 function startMini() {
   const steps = [];
@@ -1292,6 +1395,7 @@ function onMotion(ev) {
 }
 
 if (S.setup.done && !S.badgesSeen) newAchievements();
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
 render();
 })();
 </script>
