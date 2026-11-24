@@ -18,7 +18,7 @@
    Jede Übung hat ihre Farbe wie Hallenmarkierungen. Training läuft als Vollbild-Ablauf. */
 :root {
   --bg: #F3F6FA; --surface: #FFFFFF; --sunk: #E8EDF3; --ink: #18222E; --muted: #5E6A7A; --line: #DFE5EC;
-  --c-push: #F05A24; --c-squat: #1F7FD6; --c-situp: #E0A100; --c-plank: #7353E0; --c-stretch: #16A06C; --c-band: #DB3A72; --c-free: #4A5868;
+  --c-push: #F05A24; --c-squat: #1F7FD6; --c-situp: #E0A100; --c-plank: #7353E0; --c-stretch: #16A06C; --c-band: #DB3A72; --c-free: #4A5868; --c-mil: #5E7424;
   --hero-a: #FF8A3D; --hero-b: #FF5A6E; --hero-ink: #FFFFFF;
   --good: #16A06C; --on-color: #FFFFFF; --figure: #18222E;
   --shadow: 0 1px 2px rgba(24, 40, 70, .06), 0 6px 18px rgba(24, 40, 70, .07);
@@ -28,14 +28,14 @@
 }
 :root[data-theme="dark"] {
   --bg: #131B2A; --surface: #1D2739; --sunk: #172031; --ink: #EEF2F8; --muted: #9AA7BA; --line: #2B3850;
-  --c-push: #FF7A45; --c-squat: #5AAEFF; --c-situp: #FFCB45; --c-plank: #A48CFF; --c-stretch: #43D39A; --c-band: #FF6FA0; --c-free: #B4C1D2;
+  --c-push: #FF7A45; --c-squat: #5AAEFF; --c-situp: #FFCB45; --c-plank: #A48CFF; --c-stretch: #43D39A; --c-band: #FF6FA0; --c-free: #B4C1D2; --c-mil: #A9C45A;
   --hero-a: #F0713A; --hero-b: #E2456A; --hero-ink: #FFFFFF;
   --good: #43D39A; --on-color: #131B2A; --figure: #EEF2F8; --shadow: none; color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
   :root[data-theme="system"] {
     --bg: #131B2A; --surface: #1D2739; --sunk: #172031; --ink: #EEF2F8; --muted: #9AA7BA; --line: #2B3850;
-    --c-push: #FF7A45; --c-squat: #5AAEFF; --c-situp: #FFCB45; --c-plank: #A48CFF; --c-stretch: #43D39A; --c-band: #FF6FA0; --c-free: #B4C1D2;
+    --c-push: #FF7A45; --c-squat: #5AAEFF; --c-situp: #FFCB45; --c-plank: #A48CFF; --c-stretch: #43D39A; --c-band: #FF6FA0; --c-free: #B4C1D2; --c-mil: #A9C45A;
     --hero-a: #F0713A; --hero-b: #E2456A; --hero-ink: #FFFFFF;
     --good: #43D39A; --on-color: #131B2A; --figure: #EEF2F8; --shadow: none; color-scheme: dark;
   }
@@ -300,6 +300,26 @@ const ROUTINES = {
     ["Schulter quer", "Arm vor der Brust heranziehen, Schulter bleibt unten.", 20, true],
     ["Hüftbeuger im Ausfallschritt", "Sitzen verkürzt die Hüftbeuger. Becken nach vorn, Po anspannen.", 25, true]
   ]},
+  prt: { name: "Army-Drill", color: "--c-mil", kind: "mil", min: 10, rounds: 1, items: [
+    ["Bend and Reach", "Füße breit, in die Hocke gehen und mit den Armen zwischen den Beinen nach hinten greifen, dann aufrichten.", 10],
+    ["Rear Lunge", "Hände an der Hüfte, großer Schritt nach hinten, hinteres Knie Richtung Boden, zurück. Seiten wechseln.", 10],
+    ["High Jumper", "Leicht in die Knie, Arme nach hinten schwingen, dann kleiner Sprung mit Armen nach vorn oben.", 10],
+    ["Rower", "Aus der Rückenlage mit gestreckten Armen aufsetzen, Knie zur Brust, Arme nach vorn.", 10],
+    ["Squat Bender", "Halbe Kniebeuge mit Armen nach vorn, aufrichten, dann aus der Hüfte nach vorn beugen.", 10],
+    ["Windmill", "Beine breit, Arme seitlich gestreckt, mit der Hand zum gegenüberliegenden Fuß drehen.", 10],
+    ["Forward Lunge", "Großer Schritt nach vorn, vorderes Knie über dem Fuß, zurückdrücken. Seiten wechseln.", 10],
+    ["Prone Row", "Bauchlage, Arme nach vorn, anheben und wie beim Rudern Richtung Schultern ziehen.", 10],
+    ["Bent-Leg Body Twist", "Rückenlage, Beine angewinkelt in der Luft, langsam zu beiden Seiten kippen.", 10],
+    ["Push-up", "Zum Abschluss saubere Liegestütze, Körper als Brett.", 10]
+  ]},
+  bootcamp: { name: "Boot-Camp-Zirkel", color: "--c-mil", kind: "milt", min: 15, rounds: 3, work: 40, rest: 20, items: [
+    ["Jumping Jacks", "Hampelmann im zügigen Tempo, leicht auf den Fußballen.", 0],
+    ["Mountain Climbers", "Hoher Liegestütz, Knie im Wechsel schnell zur Brust ziehen.", 0],
+    ["Burpees", "Hocke, Hände auf den Boden, Beine nach hinten, zurück in die Hocke, Strecksprung.", 0],
+    ["Flutter Kicks", "Rückenlage, Hände unter dem Po, gestreckte Beine knapp über dem Boden im Wechsel auf und ab.", 0],
+    ["Squat Jumps", "Tiefe Kniebeuge, explosiv hochspringen, weich landen.", 0],
+    ["8-Count Bodybuilder", "Wie ein Burpee, nur mit Liegestütz und Beine auf und zu in der Brettposition.", 0]
+  ]},
   bandFull: { name: "Band Ganzkörper", color: "--c-band", kind: "band", min: 20, rounds: 3, items: [
     ["Rudern im Sitzen", "Band um die Füße, Ellbogen nah am Körper nach hinten ziehen, Schulterblätter zusammen.", 12],
     ["Band auseinanderziehen", "Arme gestreckt auf Brusthöhe, Band zur Brust hin auseinanderziehen.", 15],
@@ -353,6 +373,18 @@ const POSES = {
   bridge:    { h: [22, 69], n: [30, 70], p: [56, 56], a: [[[38, 73], [48, 73]], [[38, 73], [48, 73]]], l: [[[72, 50], [78, 73]], [[70, 51], [76, 73]]], x: `<ellipse cx="71" cy="51" rx="5" ry="3" fill="none" stroke="var(--c-band)" stroke-width="2.5"/>` },
   facePull:  { h: [62, 15], n: [62, 23], p: [62, 45], a: [[[54, 16], [48, 20]], [[56, 18], [50, 22]]], l: [[[60, 59], [58, 73]], [[64, 59], [66, 73]]], x: WALL(12) + BAND("48,20 13,20") },
   extRot:    { front: true, h: [60, 15], n: [60, 23], p: [60, 45], a: [[[51, 37], [38, 36]], [[69, 37], [82, 36]]], l: [[[56, 59], [55, 73]], [[64, 59], [65, 73]]], x: BAND("38,36 82,36") },
+  bendReach: { h: [70, 63], n: [66, 57], p: [52, 50], a: [[[60, 65], [50, 72]], [[62, 66], [52, 73]]], l: [[[60, 60], [58, 73]], [[56, 61], [50, 73]]] },
+  rearLunge: { h: [58, 20], n: [58, 28], p: [58, 50], a: [[[50, 40], [58, 48]], [[52, 40], [60, 48]]], l: [[[72, 57], [72, 73]], [[44, 71], [30, 73]]] },
+  highJumper:{ h: [67, 25], n: [64, 32], p: [54, 50], a: [[[56, 40], [46, 46]], [[58, 41], [48, 47]]], l: [[[64, 58], [60, 73]], [[62, 59], [56, 73]]], x: ARC("M74 20 Q84 10 90 20") },
+  rower:     { h: [46, 40], n: [45, 48], p: [48, 71], a: [[[57, 50], [69, 50]], [[56, 52], [68, 52]]], l: [[[62, 56], [74, 73]], [[60, 57], [72, 73]]] },
+  windmill:  { front: true, h: [45, 25], n: [51, 31], p: [60, 46], a: [[[57, 50], [70, 69]], [[44, 22], [37, 12]]], l: [[[52, 59], [46, 73]], [[68, 59], [74, 73]]] },
+  proneRow:  { h: [81, 62], n: [74, 66], p: [50, 71], a: [[[77, 57], [90, 59]], [[79, 58], [92, 60]]], l: [[[35, 72], [18, 72]], [[35, 72], [18, 72]]] },
+  bodyTwist: { h: [22, 66], n: [30, 69], p: [56, 71], a: [[[40, 66], [46, 58]], [[26, 62], [16, 60]]], l: [[[60, 52], [76, 50]], [[62, 54], [78, 52]]] },
+  jack:      { front: true, h: [60, 15], n: [60, 23], p: [60, 45], a: [[[48, 12], [42, 2]], [[72, 12], [78, 2]]], l: [[[52, 59], [46, 73]], [[68, 59], [74, 73]]] },
+  climber:   { h: [92, 45], n: [84, 50], p: [52, 58], a: [[[84, 61], [84, 73]], [[88, 61], [88, 73]]], l: [[[70, 64], [62, 72]], [[36, 65], [18, 72]]] },
+  burpee:    { h: [80, 50], n: [72, 52], p: [56, 58], a: [[[76, 62], [76, 73]], [[79, 62], [79, 73]]], l: [[[66, 60], [56, 73]], [[64, 61], [54, 73]]], x: ARC("M92 40 L92 18 M86 24 L92 18 L98 24") },
+  flutter:   { h: [22, 66], n: [30, 69], p: [56, 71], a: [[[44, 73], [54, 73]], [[44, 73], [54, 73]]], l: [[[74, 63], [92, 56]], [[74, 67], [92, 65]]], x: ARC("M98 50 L98 70") },
+  squatJump: { h: [58, 12], n: [58, 20], p: [58, 40], a: [[[53, 10], [50, 1]], [[63, 10], [66, 1]]], l: [[[61, 53], [58, 66]], [[57, 53], [54, 66]]], x: ARC("M40 70 Q58 60 76 70") },
   passThru:  { front: true, h: [60, 15], n: [60, 23], p: [60, 45], a: [[[45, 12], [36, 3]], [[75, 12], [84, 3]]], l: [[[56, 59], [55, 73]], [[64, 59], [65, 73]]], x: BAND("36,3 84,3") }
 };
 const POSE_OF = {
@@ -361,7 +393,10 @@ const POSE_OF = {
   "Schulter quer": "shoulder", "Oberschenkel vorn": "quad", "Wade an der Wand": "calf", "Bauch: Kobra": "cobra",
   "Armkreisen": "armCircle", "Katze und Kuh": "catCow", "Hüftkreisen": "hipCircle", "Ausfallschritt mit Drehung": "lungeTwist", "Tiefe Hocke halten": "deepSquat",
   "Rudern im Sitzen": "bandRow", "Band auseinanderziehen": "pullApart", "Schulterdrücken": "press", "Bizepscurl": "curl", "Kniebeuge mit Band": "bandSquat",
-  "Hüftheben mit Band": "bridge", "Face Pulls": "facePull", "Außenrotation": "extRot", "Band über Kopf nach hinten": "passThru"
+  "Hüftheben mit Band": "bridge",
+  "Bend and Reach": "bendReach", "Rear Lunge": "rearLunge", "High Jumper": "highJumper", "Rower": "rower", "Squat Bender": "squat", "Windmill": "windmill",
+  "Forward Lunge": "rearLunge", "Prone Row": "proneRow", "Bent-Leg Body Twist": "bodyTwist", "Push-up": "push",
+  "Jumping Jacks": "jack", "Mountain Climbers": "climber", "Burpees": "burpee", "Flutter Kicks": "flutter", "Squat Jumps": "squatJump", "8-Count Bodybuilder": "burpee", "Face Pulls": "facePull", "Außenrotation": "extRot", "Band über Kopf nach hinten": "passThru"
 };
 function figure(key, color, w) {
   const P = POSES[key]; if (!P) return "";
@@ -453,7 +488,8 @@ function restFor(i, of) { return S.setup.restAuto ? (i >= of - 2 ? 90 : 60) : S.
 
 /* ===================== Plan-Logik ===================== */
 function isPlanDay(d) { return S.setup.cycle === "daily" || S.setup.days.includes(d.getDay()); }
-function hasProgram(k) { return !!(S.log[k] && S.log[k].items.some(i => i.mode === "plan" || i.mode === "mini" || i.mode === "single")); }
+function isMilRoutine(i) { return i.mode === "routine" && ROUTINES[i.type] && (ROUTINES[i.type].kind === "mil" || ROUTINES[i.type].kind === "milt"); }
+function hasProgram(k) { return !!(S.log[k] && S.log[k].items.some(i => i.mode === "plan" || i.mode === "mini" || i.mode === "single" || i.mode === "mil" || isMilRoutine(i))); }
 function hasStretch(k) { return !!(S.log[k] && S.log[k].items.some(i => i.mode === "routine" && ROUTINES[i.type] && ROUTINES[i.type].kind === "stretch")); }
 function monday(d) { const m = new Date(d); m.setHours(12, 0, 0, 0); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return m; }
 function weekStats(mon) {
@@ -532,13 +568,13 @@ function weekStrip() {
 let statPeriod = "week";
 const MON = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
 function aggregate(keys) {
-  const a = { push: 0, squat: 0, situp: 0, plank: 0, days: 0, stretch: 0, band: 0, best: {} };
+  const a = { push: 0, squat: 0, situp: 0, plank: 0, days: 0, stretch: 0, band: 0, mil: 0, best: {} };
   for (const k of keys) {
     const d = S.log[k]; if (!d) continue;
     if (hasProgram(k)) a.days++;
     for (const it of d.items) {
       if (EX[it.type]) { const s = it.sets.reduce((x, y) => x + y, 0); a[it.type] += s; a.best[it.type] = Math.max(a.best[it.type] || 0, ...it.sets); }
-      else if (it.mode === "routine") { if (ROUTINES[it.type] && ROUTINES[it.type].kind === "band") a.band += it.min; else a.stretch += it.min; }
+      else if (it.mode === "routine") { const kd = ROUTINES[it.type] && ROUTINES[it.type].kind; if (kd === "band") a.band += it.min; else if (kd === "mil" || kd === "milt") a.mil += it.min; else a.stretch += it.min; }
     }
   }
   return a;
@@ -577,7 +613,7 @@ function statsHTML() {
   const seg = `<div class="seg" role="tablist">${Object.entries(names).map(([id, n]) => `<button role="tab" aria-selected="${statPeriod === id}" data-period="${id}">${n}</button>`).join("")}</div>`;
   const kp = (v, l, c) => `<div class="kpi"><b style="${c ? "color:" + cv(c) : ""}">${v}</b><span>${l}</span></div>`;
   const plank = a.plank >= 60 ? Math.floor(a.plank / 60) + ":" + String(a.plank % 60).padStart(2, "0") : a.plank + "s";
-  const kpis = `<div class="kpis">${kp(a.push, "Liegestütze", "--c-push")}${kp(a.squat, "Squats", "--c-squat")}${kp(a.situp, "Situps", "--c-situp")}${kp(plank, "Plank", "--c-plank")}${kp(a.stretch + a.band, "Min Dehnen/Band", "--c-stretch")}${kp(a.days, "Trainingstage")}</div>`;
+  const kpis = `<div class="kpis">${kp(a.push, "Liegestütze", "--c-push")}${kp(a.squat, "Squats", "--c-squat")}${kp(a.situp, "Situps", "--c-situp")}${kp(plank, "Plank", "--c-plank")}${kp(a.stretch + a.band + a.mil, "Min Dehnen/Band/Mil.", "--c-stretch")}${kp(a.days, "Trainingstage")}</div>`;
   let chart = "";
   if (buckets.length > 1) {
     const vals = buckets.map(b => { const x = aggregate(b.keys); return [x.push, x.squat, x.situp]; });
@@ -592,7 +628,7 @@ function statsHTML() {
   const now = new Date(), mon = monday(now), sun = new Date(mon); sun.setDate(mon.getDate() + 6);
   const dm = d => d.getDate() + "." + (d.getMonth() + 1) + ".";
   const range = { day: "Heute, " + dm(now), week: "Diese Woche, " + dm(mon) + " bis " + dm(sun), month: MON[now.getMonth()] + " " + now.getFullYear(), year: "Jahr " + now.getFullYear(), all: "Alles seit deinem ersten Training" }[statPeriod];
-  const any = a.push + a.squat + a.situp + a.plank + a.stretch + a.band > 0;
+  const any = a.push + a.squat + a.situp + a.plank + a.stretch + a.band + a.mil > 0;
   const cap = `<div class="row"><b style="font-size:14px">${range}</b><span class="small">${a.days} ${a.days === 1 ? "Trainingstag" : "Trainingstage"}</span></div>`;
   if (!any) return seg + cap + `<p class="small">In diesem Zeitraum ist noch nichts eingetragen.</p>`;
   return seg + cap + kpis + chart + (best ? `<p class="small">Beste Sätze: ${best}</p>` : "");
@@ -604,7 +640,7 @@ function statsHTML() {
 const LEVELS = ["Neustart", "Einsteiger", "Dranbleiber", "Routinier", "Kämpfer", "Athlet", "Eisern", "Maschine", "Titan", "Legende"];
 function lifetime() {
   const keys = Object.keys(S.log).sort(), a = aggregate(keys);
-  let dailies = 0, stretchN = 0, bandN = 0, minis = 0, tests = 0, allFour = 0, comebacks = 0, prev = null;
+  let milN = 0, dailies = 0, stretchN = 0, bandN = 0, minis = 0, tests = 0, allFour = 0, comebacks = 0, prev = null;
   const vars = new Set();
   for (const k of keys) {
     const items = S.log[k].items, types = new Set();
@@ -612,6 +648,7 @@ function lifetime() {
       if (it.mode === "routine") { if (ROUTINES[it.type] && ROUTINES[it.type].kind === "band") bandN++; else stretchN++; }
       if (it.mode === "mini") minis++;
       if (it.mode === "daily") dailies++;
+      if (isMilRoutine(it) || it.mode === "mil") milN++;
       if (it.mode === "test" || it.test) tests++;
       if (it.variant) vars.add(it.variant);
       if (EX[it.type]) types.add(it.type);
@@ -623,8 +660,8 @@ function lifetime() {
     }
   }
   const flexGain = S.flex.length > 1 ? Math.max(...S.flex.map(f => f[1])) - S.flex[0][1] : 0;
-  const xp = a.push + a.squat + a.situp + Math.round(a.plank / 2) + (a.stretch + a.band) * 5 + a.days * 50 + tests * 20 + dailies * 25;
-  return Object.assign(a, { dailies, stretchN, bandN, minis, tests, allFour, comebacks, vars: vars.size, flexGain, xp, streak: weekStreak() });
+  const xp = a.push + a.squat + a.situp + Math.round(a.plank / 2) + (a.stretch + a.band + a.mil) * 5 + a.days * 50 + tests * 20 + dailies * 25;
+  return Object.assign(a, { milN, dailies, stretchN, bandN, minis, tests, allFour, comebacks, vars: vars.size, flexGain, xp, streak: weekStreak() });
 }
 function levelOf(xp) { // Level n braucht 150 · n · (n+1) / 2 Punkte
   let n = 0; while (150 * (n + 1) * (n + 2) / 2 <= xp) n++;
@@ -657,6 +694,8 @@ const BADGES = [
   ["comeback","Comeback",           "Nach über 7 Tagen Pause zurück",  "C",    "--c-plank",   L => [L.comebacks, 1]],
   ["daily10", "Aufgabenjäger",      "10 Tagesaufgaben erledigt",       "10",   "--c-situp",   L => [L.dailies, 10]],
   ["joker",   "Gerettet",           "Einen Joker verbraucht und weitergemacht", "J", "--c-squat", L => [weekStreakInfo().used, 1]],
+  ["recruit", "Rekrut",             "Einen 2-Minuten-Test absolviert",  "2'",   "--c-mil",     L => [(S.mil || []).length, 1]],
+  ["drill",   "Drill Sergeant",     "10 Military-Einheiten",           "DS",   "--c-mil",     L => [L.milN, 10]],
   ["lvl5",    "Kämpfer",            "Level 5 erreicht",                "L5",   "--c-free",    L => [levelOf(L.xp).n, 5]]
 ];
 function badgeState(L) { return BADGES.map(([id, name, desc, sym, color, fn]) => { const [v, goal] = fn(L); return { id, name, desc, sym, color, v: Math.min(v, goal), goal, got: v >= goal }; }); }
@@ -731,6 +770,18 @@ function blockHTML(ex) {
   const t = targets(ex);
   const reps = t.map((x, i) => `<span>${fmt(ex, x)}${i === t.length - 1 ? "+" : ""}</span>`).join('<span class="x">·</span>');
   return `<div class="block">${illo(D.pose, D.color, 54)}<div><div class="name">${name}</div><div class="reps" style="color:${cv(D.color)}">${reps}</div></div></div>`;
+}
+function milHTML() {
+  const hist = S.mil || [], last = hist[hist.length - 1];
+  const bp = hist.length ? Math.max(...hist.map(h => h[1])) : 0, bs = hist.length ? Math.max(...hist.map(h => h[2])) : 0;
+  const t = (id, pose, lab, name, extra) => `<button class="tile" style="--k:${cv("--c-mil")}" ${id}>${illo(pose, "--c-mil", 92)}<span class="label">${lab}</span><b>${name}</b>${extra || ""}</button>`;
+  return `<section style="display:grid;gap:10px"><span class="label">Military Calisthenics · zählt als Training</span><div class="tiles">
+    ${t('data-routine="prt"', "windmill", "10 Übungen · 10 Min", "Army-Drill")}
+    ${t('data-routine="bootcamp"', "burpee", "40/20 s · 3 Runden", "Boot-Camp-Zirkel")}
+  </div>
+  <div class="card pad" style="--k:var(--c-mil)"><div class="row" style="align-items:center">${illo("push", "--c-mil", 70)}<div style="flex:1;min-width:0"><span class="label">Klassischer Army-Test</span><h3>2 Minuten Liegestütze + 2 Minuten Situps</h3>
+    <p class="small">${last ? "Zuletzt: " + last[1] + " Liegestütze · " + last[2] + " Situps · Bestwerte " + bp + " / " + bs : "Wie beim früheren US-Army-Fitnesstest. Ideal alle 4 Wochen als Leistungscheck."}</p></div></div>
+    <button class="go alt" id="milTest">Test starten</button></div></section>`;
 }
 function dailyHTML() {
   const [n, d, pose, col] = dailyToday(), done = dailyDone();
@@ -810,6 +861,7 @@ function render() {
   ${recoveryHTML()}
   <section style="display:grid;gap:10px">${gameHTML()}</section>
   <section style="display:grid;gap:10px"><span class="label">Nur eine Übung · zählt für deinen Plan</span><div class="tiles four">${single}</div></section>
+  ${milHTML()}
   <section style="display:grid;gap:10px"><span class="label">Dehnen, Band und mehr</span><div class="tiles">${tileHTML}</div></section>
   <section style="display:grid;gap:10px"><span class="label">Fortschritt · Trainingsstand am Stück</span><div class="prog card">${progRows}
     <div class="prow"><div><div style="font-weight:600">Beweglichkeit</div>${flexDelta != null && flexDelta !== 0 ? `<div class="delta" style="${flexDelta < 0 ? "color:var(--c-push)" : ""}">${flexDelta > 0 ? "+" : ""}${flexDelta} cm seit Start</div>` : `<div class="small">Rumpfbeuge im Sitzen</div>`}</div>
@@ -964,6 +1016,7 @@ function bindHome() {
     rd.readAsText(f);
   });
   $("#varsT").addEventListener("click", () => { S.setup.vars = !S.setup.vars; save(); render(); });
+  $("#milTest").addEventListener("click", startMilTest);
   const dd = $("#dailyDone"); if (dd) dd.addEventListener("click", () => { logAdd(todayKey(), { type: "daily", mode: "daily", name: dailyToday()[0] }); save(); celebrate(false); const a = newAchievements(); render(); if (a.badges.length || a.level) setTimeout(() => celebrate(true), 400); });
   $("#accentSel").addEventListener("change", e => { S.setup.accent = e.target.value; save(); render(); });
   $("#themeSel").addEventListener("change", e => { S.setup.theme = e.target.value; save(); render(); });
@@ -1038,10 +1091,24 @@ function startSingle(ex) {
   const steps = []; planSteps(ex, steps); steps.push({ k: "done" });
   startRun(EX[ex].name, steps, { kind: "single" });
 }
+function startMilTest() {
+  startRun("2-Minuten-Test", [
+    { k: "set", ex: "push", target: 0, last: true, idx: 1, of: 1, limit: 120 },
+    { k: "rest", sec: 120, next: "Situps, 2 Minuten" },
+    { k: "set", ex: "situp", target: 0, last: true, idx: 1, of: 1, limit: 120 },
+    { k: "done" }
+  ], { kind: "miltest" });
+}
 function startCustom() { startRun("Eigenes Training", [{ k: "build" }], { kind: "free" }); }
 function startRoutine(id) {
   const r = ROUTINES[id], steps = [];
-  if (r.kind === "stretch") {
+  if (r.kind === "milt") {
+    for (let round = 1; round <= r.rounds; round++) r.items.forEach(([n, cue], i) => {
+      steps.push({ k: "timed", name: n, cue, sec: r.work, color: r.color, pose: POSE_OF[n], prep: 0, work: true, round, rounds: r.rounds });
+      const last = round === r.rounds && i === r.items.length - 1;
+      if (!last) steps.push({ k: "rest", sec: i === r.items.length - 1 ? 60 : r.rest, next: i === r.items.length - 1 ? "Runde " + (round + 1) : r.items[i + 1][0] });
+    });
+  } else if (r.kind === "stretch") {
     r.items.forEach(([n, cue, sec, sides]) => {
       const pose = POSE_OF[n];
       if (sides) { steps.push({ k: "timed", name: n + " · links", cue, sec, color: r.color, pose }); steps.push({ k: "timed", name: n + " · rechts", cue, sec, color: r.color, pose }); }
@@ -1121,6 +1188,10 @@ function commit(finished) {
     for (const [ex, r] of Object.entries(R.res)) if (r.sets.length) logAdd(k, { type: ex, mode: "plan", sets: r.sets.slice(), test: !!r.test, variant: r.variant });
   } else if (m.kind === "single") {
     for (const [ex, r] of Object.entries(R.res)) if (r.sets.length) logAdd(k, { type: ex, mode: "single", sets: r.sets.slice(), test: !!r.test });
+  } else if (m.kind === "miltest") {
+    const pu = R.res.push ? R.res.push.sets[0] || 0 : 0, su = R.res.situp ? R.res.situp.sets[0] || 0 : 0;
+    for (const [ex, r] of Object.entries(R.res)) if (r.sets.length) logAdd(k, { type: ex, mode: "mil", sets: r.sets.slice() });
+    if (pu || su) { S.mil = S.mil || []; S.mil.push([k, pu, su]); }
   } else if (m.kind === "mini") {
     for (const [ex, r] of Object.entries(R.res)) if (r.sets.length) logAdd(k, { type: ex, mode: "mini", sets: r.sets.slice() });
   } else if (m.kind === "free") {
@@ -1187,6 +1258,13 @@ function stepSet(s, st, ac) {
     if (R.meta.kind === "setup") { endRun(false); return; }
     next();
   };
+  let limitStarted = false;
+  const startLimit = () => {
+    if (!s.limit || limitStarted) return; limitStarted = true;
+    let left = s.limit; goal.textContent = "Noch " + left + " s";
+    timers.push(setInterval(() => { left--; goal.textContent = "Noch " + left + " s"; if (left <= 5 && left > 0) beep(600, .06); if (left <= 0) { beep(1200, .5); finish(); } }, 1000));
+  };
+  if (s.limit) goal.textContent = "2 Minuten, so viele wie sauber gehen";
   const minus = btn("−1", "", () => { finished = false; set(count - 1); });
   const done = btn(s.last || s.test ? "Fertig" : "Satz fertig", "main", finish, col);
 
@@ -1195,6 +1273,7 @@ function stepSet(s, st, ac) {
     status.textContent = D.mode === "tap" ? "Tippen zählt. Der ganze Bildschirm ist Zählfläche." : "Bewegungssensor nicht erlaubt. Tippe pro Wiederholung irgendwo auf den Bildschirm.";
     st.onpointerdown = e => { if (!armed) return; const n = Date.now(); if (n - lastTap < 500) return; lastTap = n; set(count + 1, true); beep(); };
     ac.append(minus, done);
+    if (s.limit) { armed = false; countdown(3, status, () => { armed = true; status.textContent = "Los! Tippen zählt."; startLimit(); }); }
   } else if (D.mode === "timer") {
     ac.append(done);
     countdown(3, status, () => {
@@ -1207,7 +1286,7 @@ function stepSet(s, st, ac) {
   } else {
     ac.append(minus, done);
     startMotion(D.mode, S.prog[s.ex].sens, meterFill, () => { set(count + 1, true); beep(); });
-    countdown(D.mode === "tilt" ? 5 : 3, status, () => { motionArm(); status.textContent = D.mode === "lift" ? "Zählt jede Kniebeuge" : "Zählt jedes Aufrichten"; });
+    countdown(D.mode === "tilt" ? 5 : 3, status, () => { motionArm(); startLimit(); status.textContent = D.mode === "lift" ? "Zählt jede Kniebeuge" : "Zählt jedes Aufrichten"; });
     timers.push(setTimeout(() => { if (sm && !sm.seen) status.textContent = "Kein Sensorsignal. Zähle mit −1 / Tippen nach oder prüfe die Freigabe in Safari."; }, 6000));
     st.onpointerdown = e => { if (sm && !sm.seen) { const n = Date.now(); if (n - lastTap < 500) return; lastTap = n; set(count + 1, true); beep(); } };
   }
@@ -1238,10 +1317,11 @@ function stepTimed(s, st, ac) {
   st.append(el("div", "cue", s.cue));
   const status = el("div", "status", "Einnehmen …"); st.append(status);
   const run = () => {
-    started = true; status.textContent = "Halten, bis es angenehm zieht, nicht schmerzt.";
+    started = true; if (!s.work) status.textContent = "Halten, bis es angenehm zieht, nicht schmerzt."; else beep(1000, .15);
     timers.push(setInterval(() => { left--; big.textContent = String(Math.max(0, left)); if (left <= 3 && left > 0) beep(600, .06); if (left <= 0) { beep(1000, .2); next(); } }, 1000));
   };
-  timers.push(setTimeout(run, 4000));
+  if (s.work) status.textContent = "Runde " + s.round + " von " + s.rounds + " · Vollgas, sauber bleiben";
+  timers.push(setTimeout(run, s.prep != null ? s.prep : 4000));
   ac.append(btn("Pause", "", e => {
     if (!started) return;
     if (e.target.dataset.p) { delete e.target.dataset.p; e.target.textContent = "Pause"; run(); }
