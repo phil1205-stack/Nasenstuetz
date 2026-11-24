@@ -14,21 +14,30 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Inter:wght@400;500;600&display=swap">
 <style>
-/* Layout: Trainingsbuch. Oben Wochenleiste, dann "Heute" als Satzkarte, weitere Trainings, Fortschritt, Einstellungen.
-   Jede Übung hat ihre eigene Farbe wie Hallenmarkierungen. Training läuft als Vollbild-Ablauf. */
+/* Layout: freundliches Trainingsbuch. Warme Morgen-Karte für "Heute", farbige Kacheln je Übung, eigene Figuren-Zeichnungen.
+   Jede Übung hat ihre Farbe wie Hallenmarkierungen. Training läuft als Vollbild-Ablauf. */
 :root {
-  --bg: #EEF1F5; --surface: #FFFFFF; --sunk: #E3E8EE; --ink: #121A24; --muted: #5A6676; --line: #D6DCE4;
-  --c-push: #E24A14; --c-squat: #1B74C9; --c-situp: #B88900; --c-plank: #6B4FD6; --c-stretch: #18865F; --c-band: #C62A60; --c-free: #3B4756;
-  --good: #18865F; --on-color: #FFFFFF;
+  --bg: #F3F6FA; --surface: #FFFFFF; --sunk: #E8EDF3; --ink: #18222E; --muted: #5E6A7A; --line: #DFE5EC;
+  --c-push: #F05A24; --c-squat: #1F7FD6; --c-situp: #E0A100; --c-plank: #7353E0; --c-stretch: #16A06C; --c-band: #DB3A72; --c-free: #4A5868;
+  --hero-a: #FF8A3D; --hero-b: #FF5A6E; --hero-ink: #FFFFFF;
+  --good: #16A06C; --on-color: #FFFFFF; --figure: #18222E;
+  --shadow: 0 1px 2px rgba(24, 40, 70, .06), 0 6px 18px rgba(24, 40, 70, .07);
   --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
   --body: "Inter", system-ui, -apple-system, sans-serif;
   color-scheme: light;
 }
+:root[data-theme="dark"] {
+  --bg: #131B2A; --surface: #1D2739; --sunk: #172031; --ink: #EEF2F8; --muted: #9AA7BA; --line: #2B3850;
+  --c-push: #FF7A45; --c-squat: #5AAEFF; --c-situp: #FFCB45; --c-plank: #A48CFF; --c-stretch: #43D39A; --c-band: #FF6FA0; --c-free: #B4C1D2;
+  --hero-a: #F0713A; --hero-b: #E2456A; --hero-ink: #FFFFFF;
+  --good: #43D39A; --on-color: #131B2A; --figure: #EEF2F8; --shadow: none; color-scheme: dark;
+}
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #10161E; --surface: #18212C; --sunk: #0B1016; --ink: #E8EDF3; --muted: #8E9BAA; --line: #263241;
-    --c-push: #FF6B33; --c-squat: #4DA3F5; --c-situp: #F0C23A; --c-plank: #9A82FF; --c-stretch: #3CC892; --c-band: #F25C91; --c-free: #A9B6C4;
-    --good: #3CC892; --on-color: #0B1016; color-scheme: dark;
+  :root[data-theme="system"] {
+    --bg: #131B2A; --surface: #1D2739; --sunk: #172031; --ink: #EEF2F8; --muted: #9AA7BA; --line: #2B3850;
+    --c-push: #FF7A45; --c-squat: #5AAEFF; --c-situp: #FFCB45; --c-plank: #A48CFF; --c-stretch: #43D39A; --c-band: #FF6FA0; --c-free: #B4C1D2;
+    --hero-a: #F0713A; --hero-b: #E2456A; --hero-ink: #FFFFFF;
+    --good: #43D39A; --on-color: #131B2A; --figure: #EEF2F8; --shadow: none; color-scheme: dark;
   }
 }
 * { box-sizing: border-box; }
@@ -42,79 +51,94 @@ body {
 main { max-width: 480px; margin: 0 auto; display: grid; gap: 26px; }
 h1, h2, h3 { margin: 0; font-family: var(--display); text-transform: uppercase; letter-spacing: .02em; text-wrap: balance; }
 h1 { font-size: 30px; font-weight: 800; }
-h2 { font-size: 22px; font-weight: 700; }
+h2 { font-size: 24px; font-weight: 800; }
 h3 { font-size: 18px; font-weight: 700; }
 p { margin: 0; }
 .label { font-size: 11px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); font-weight: 600; }
 .muted { color: var(--muted); }
 .small { font-size: 13px; color: var(--muted); }
 button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
-button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--c-push); outline-offset: 2px; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--c-squat); outline-offset: 2px; }
 .num { font-family: var(--display); font-variant-numeric: tabular-nums; }
+.card { background: var(--surface); border-radius: 18px; box-shadow: var(--shadow); border: 1px solid var(--line); }
 
-header.top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+header.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand .logo { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); display: grid; place-content: center; }
 
 /* Wochenleiste */
 .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-.wd { display: grid; justify-items: center; gap: 4px; padding: 8px 0 9px; border-radius: 10px; }
+.wd { display: grid; justify-items: center; gap: 4px; padding: 8px 0 9px; border-radius: 12px; }
 .wd .d { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
 .wd .n { font-family: var(--display); font-size: 20px; font-weight: 700; line-height: 1; }
 .wd .m { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid transparent; }
 .wd.plan .m { border-color: var(--muted); }
 .wd.done .m { background: var(--good); border-color: var(--good); }
-.wd.today { background: var(--surface); box-shadow: 0 0 0 1px var(--line); }
+.wd.today { background: linear-gradient(160deg, var(--hero-a), var(--hero-b)); color: var(--hero-ink); }
+.wd.today .d { color: var(--hero-ink); opacity: .85; }
+.wd.today.plan .m { border-color: var(--hero-ink); }
+.wd.today.done .m { background: var(--hero-ink); border-color: var(--hero-ink); }
 
 /* Heute */
-.today-card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: grid; gap: 16px; }
-.today-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.blocks { display: grid; gap: 12px; }
-.block { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; }
-.badge { width: 44px; height: 44px; border-radius: 12px; display: grid; place-content: center; font-family: var(--display); font-weight: 800; font-size: 18px; color: var(--on-color); }
+.today-card { overflow: hidden; display: grid; }
+.today-top { background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); color: var(--hero-ink); padding: 16px 18px 18px; display: grid; gap: 4px; }
+.today-top .label { color: var(--hero-ink); opacity: .85; }
+.today-body { padding: 16px 18px 18px; display: grid; gap: 14px; }
+.blocks { display: grid; gap: 10px; }
+.block { display: grid; grid-template-columns: 58px 1fr; gap: 12px; align-items: center; }
+.ill { border-radius: 14px; display: grid; place-content: center; background: color-mix(in srgb, var(--k) 14%, var(--surface)); }
+.ill svg { display: block; }
 .block .name { font-weight: 600; }
-.reps { display: flex; flex-wrap: wrap; gap: 4px 10px; font-family: var(--display); font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.reps { display: flex; flex-wrap: wrap; gap: 2px 9px; font-family: var(--display); font-size: 21px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .reps .x { color: var(--muted); font-weight: 500; }
-.go { width: 100%; padding: 17px; border-radius: 14px; background: var(--ink); color: var(--bg); font-family: var(--display); font-weight: 800; font-size: 23px; letter-spacing: .05em; text-transform: uppercase; }
-.go.alt { background: var(--sunk); color: var(--ink); font-size: 18px; padding: 13px; }
+.go { width: 100%; padding: 17px; border-radius: 14px; background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); color: var(--hero-ink); font-family: var(--display); font-weight: 800; font-size: 23px; letter-spacing: .05em; text-transform: uppercase; box-shadow: 0 6px 16px color-mix(in srgb, var(--hero-b) 30%, transparent); }
+.go.alt { background: var(--sunk); color: var(--ink); font-size: 18px; padding: 13px; box-shadow: none; }
 .done-note { display: flex; gap: 10px; align-items: center; color: var(--good); font-weight: 600; }
 
-/* Weitere Trainings */
+/* Kacheln */
 .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.tile { text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 6px; align-content: start; min-height: 104px; }
-.tile .k { display: flex; justify-content: space-between; align-items: center; }
-.tile .dot { width: 10px; height: 10px; border-radius: 3px; }
-.tile b { font-family: var(--display); font-size: 19px; text-transform: uppercase; letter-spacing: .02em; line-height: 1.1; }
+.tile { text-align: left; border-radius: 16px; padding: 12px 12px 14px; display: grid; gap: 4px; align-content: start; background: color-mix(in srgb, var(--k) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--k) 22%, transparent); }
+.tile .ill { background: transparent; place-content: start; }
+.tile b { font-family: var(--display); font-size: 19px; text-transform: uppercase; letter-spacing: .02em; line-height: 1.1; color: var(--ink); }
+.tile .label { color: color-mix(in srgb, var(--k) 70%, var(--ink)); }
+.tiles.four { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.tiles.four .tile { padding: 8px 6px 10px; justify-items: center; text-align: center; }
+.tiles.four .tile b { font-size: 13px; letter-spacing: 0; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; }
+.tiles.four .tile .ill { place-content: center; }
 
 /* Fortschritt */
-.prog { display: grid; gap: 2px; background: var(--line); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-.prow { background: var(--surface); display: grid; grid-template-columns: 1fr auto 92px; gap: 12px; align-items: center; padding: 12px 14px; }
+.prog { display: grid; overflow: hidden; }
+.prow { display: grid; grid-template-columns: 1fr auto 92px; gap: 12px; align-items: center; padding: 12px 14px; border-top: 1px solid var(--line); }
+.prow:first-child { border-top: 0; }
 .prow .lvl { font-family: var(--display); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
 .prow .delta { font-size: 12px; color: var(--good); font-weight: 600; }
 .spark { width: 92px; height: 30px; }
 
 /* Einstellungen & Formulare */
-details.box { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+details.box { padding: 14px; }
 details.box summary { cursor: pointer; font-weight: 600; }
 .fieldset { display: grid; gap: 10px; margin-top: 14px; }
 .opts { display: grid; gap: 8px; }
-.opt { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; text-align: left; padding: 11px 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--bg); }
-.opt[aria-checked="true"] { border-color: var(--ink); }
+.opt { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; text-align: left; padding: 11px 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); }
+.opt[aria-checked="true"] { border-color: var(--hero-b); background: color-mix(in srgb, var(--hero-b) 7%, var(--surface)); }
 .opt .r { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--muted); margin-top: 2px; }
-.opt[aria-checked="true"] .r { border: 6px solid var(--ink); }
+.opt[aria-checked="true"] .r { border: 6px solid var(--hero-b); }
 .opt b { display: block; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { padding: 8px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--bg); font-weight: 600; font-size: 13px; }
+.chip { padding: 8px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); font-weight: 600; font-size: 13px; }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.row input[type=number], .row select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.row input[type=number], .row select, .row input[type=time] { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
 .row input[type=number] { width: 84px; text-align: right; }
-.row input[type=range] { width: 150px; accent-color: var(--ink); }
+.row input[type=range] { width: 150px; accent-color: var(--hero-b); }
 .linkbtn { color: var(--muted); text-decoration: underline; font-size: 13px; padding: 0; justify-self: start; }
 
 /* Einstufung */
 .setup { display: grid; gap: 18px; }
 .intro { display: grid; gap: 8px; }
 .intro h2 { font-size: 34px; line-height: 1; }
-.test-row { display: grid; grid-template-columns: 44px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.pad { padding: 16px 18px 18px; display: grid; gap: 14px; }
+.test-row { display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
 .test-row:last-child { border-bottom: 0; }
 .test-row .ctl { display: flex; gap: 6px; align-items: center; }
 .test-row input { width: 64px; font: inherit; padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); text-align: right; }
@@ -127,15 +151,19 @@ details.box summary { cursor: pointer; font-weight: 600; }
   padding: calc(env(safe-area-inset-top, 0px) + 12px) max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 16px) max(16px, env(safe-area-inset-left, 0px));
 }
 #run .bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-#run .track { height: 5px; border-radius: 3px; background: var(--sunk); overflow: hidden; }
-#run .track i { display: block; height: 100%; width: 0; background: var(--ink); transition: width .3s; }
-.stage { display: grid; align-content: center; justify-items: center; text-align: center; gap: 10px; min-height: 0; }
+#run .track { height: 6px; border-radius: 3px; background: var(--sunk); overflow: hidden; }
+#run .track i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--hero-a), var(--hero-b)); transition: width .3s; }
+.stage { display: grid; align-content: center; justify-items: center; text-align: center; gap: 10px; min-height: 0; overflow-y: auto; }
 .stage .what { font-family: var(--display); font-size: 26px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
-.stage .big { font-family: var(--display); font-weight: 800; font-size: min(40vw, 260px); line-height: .85; font-variant-numeric: tabular-nums; }
+.stage .big { font-family: var(--display); font-weight: 800; font-size: min(36vw, 240px); line-height: .85; font-variant-numeric: tabular-nums; }
+.stage .big.mid { font-size: min(24vw, 150px); }
 .stage .big.pop { animation: pop .18s ease-out; }
 .stage .goal { font-size: 16px; font-weight: 600; }
-.stage .cue { max-width: 34ch; color: var(--muted); font-size: 14px; }
+.stage .cue { max-width: 36ch; color: var(--muted); font-size: 14px; }
 .stage .status { min-height: 22px; color: var(--muted); }
+.stage .ill { width: min(300px, 100%); padding: 6px 10px; }
+.stage .ill svg { width: 100%; height: auto; }
+.stage .ill.sm { width: min(170px, 60%); }
 @keyframes pop { from { transform: scale(1.08); } to { transform: scale(1); } }
 .meter { width: min(320px, 100%); display: grid; gap: 6px; }
 .meter .t { position: relative; height: 12px; border-radius: 6px; background: var(--sunk); overflow: hidden; }
@@ -145,31 +173,37 @@ details.box summary { cursor: pointer; font-weight: 600; }
 .actions { display: flex; gap: 10px; }
 .actions button { flex: 1; padding: 15px; border-radius: 13px; font-weight: 700; font-size: 16px; background: var(--surface); border: 1px solid var(--line); }
 .actions button.main { color: var(--on-color); border-color: transparent; font-family: var(--display); font-size: 21px; letter-spacing: .05em; text-transform: uppercase; }
-.feel { display: grid; gap: 10px; width: min(340px, 100%); }
-.feel button { padding: 15px; border-radius: 13px; background: var(--surface); border: 1px solid var(--line); font-weight: 600; text-align: left; }
+.feel { display: grid; gap: 10px; width: min(360px, 100%); }
+.feel button { padding: 14px; border-radius: 13px; background: var(--surface); border: 1px solid var(--line); font-weight: 600; text-align: left; box-shadow: var(--shadow); }
 .feel button small { display: block; color: var(--muted); font-weight: 400; }
 .summary { width: min(360px, 100%); display: grid; gap: 8px; text-align: left; }
 .summary div { display: flex; justify-content: space-between; gap: 10px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
 .btn-x { padding: 8px 12px; border-radius: 9px; background: var(--surface); border: 1px solid var(--line); font-weight: 600; font-size: 14px; }
+.builder { width: min(380px, 100%); display: grid; gap: 8px; text-align: left; }
+.brow { display: grid; grid-template-columns: 56px 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; background: var(--surface); border: 1.5px solid var(--line); }
+.brow.on { border-color: var(--k); background: color-mix(in srgb, var(--k) 8%, var(--surface)); }
+.brow .ctl { display: flex; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); }
+.brow input, .brow select { width: 58px; font: inherit; padding: 6px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); text-align: right; }
+
 /* Statistik */
-.seg { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+.seg { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 4px; border-radius: 12px; }
 .seg button { padding: 8px 2px; border-radius: 9px; font-weight: 600; font-size: 13px; color: var(--muted); }
-.seg button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.seg button[aria-selected="true"] { background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); color: var(--hero-ink); }
 .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; gap: 2px; }
-.kpi b { font-family: var(--display); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.05; }
+.kpi { border-radius: 14px; padding: 10px 12px; display: grid; gap: 2px; background: color-mix(in srgb, var(--k, var(--muted)) 11%, var(--surface)); border: 1px solid color-mix(in srgb, var(--k, var(--muted)) 20%, transparent); }
+.kpi b { font-family: var(--display); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.05; color: color-mix(in srgb, var(--k, var(--ink)) 85%, var(--ink)); }
 .kpi span { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
-.chart { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 12px 8px; display: grid; gap: 6px; }
+.chart { padding: 12px 12px 8px; display: grid; gap: 6px; }
 .cols { display: grid; gap: 3px; align-items: end; height: 120px; }
 .cols .c { display: flex; flex-direction: column-reverse; height: 100%; min-width: 0; }
 .cols .c i { display: block; width: 100%; }
-.cols .c i:last-child { border-radius: 3px 3px 0 0; }
+.cols .c i:last-child { border-radius: 4px 4px 0 0; }
 .cols .c.empty::before { content: ""; display: block; height: 2px; background: var(--line); }
 .xl { display: grid; gap: 3px; font-size: 10px; color: var(--muted); text-align: center; font-variant-numeric: tabular-nums; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--muted); }
 .legend span::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; background: var(--k); }
-.streak { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
-.streak .flame { font-family: var(--display); font-size: 34px; font-weight: 800; line-height: 1; color: var(--c-push); font-variant-numeric: tabular-nums; }
+.streak { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.streak .flame { width: 52px; height: 52px; border-radius: 14px; display: grid; place-content: center; font-family: var(--display); font-size: 30px; font-weight: 800; color: var(--hero-ink); background: linear-gradient(135deg, var(--hero-a), var(--hero-b)); font-variant-numeric: tabular-nums; }
 .flex-in { display: flex; gap: 8px; align-items: center; }
 .flex-in input { width: 76px; font: inherit; padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); text-align: right; }
 #fx { position: fixed; inset: 0; z-index: 80; pointer-events: none; width: 100%; height: 100%; }
@@ -191,17 +225,18 @@ details.box summary { cursor: pointer; font-weight: 600; }
 "use strict";
 
 /* ===================== Inhalte ===================== */
+const APP_NAME = "Nasenstütz";
 const EX = {
-  push:  { name: "Liegestütze", tag: "LS", color: "--c-push",  mode: "tap",   unit: "",  f: [.5, .6, .5, .5, .6], step: 1,
+  push:  { name: "Liegestütze", tag: "LS", pose: "push", color: "--c-push",  mode: "tap",   unit: "",  f: [.5, .6, .5, .5, .6], step: 1,
            cue: "Körper bildet eine gerade Linie, Ellbogen etwa 45 Grad vom Körper. Handy unter die Brust, gern erhöht auf ein Buch, und bei jeder Wiederholung mit der Nase antippen.",
            testQ: "Wie viele saubere Liegestütze schaffst du am Stück?" },
-  squat: { name: "Squats",      tag: "SQ", color: "--c-squat", mode: "lift",  unit: "",  f: [.6, .7, .6, .7],     step: 1,
+  squat: { name: "Squats",      tag: "SQ", pose: "squat", color: "--c-squat", mode: "lift",  unit: "",  f: [.6, .7, .6, .7],     step: 1,
            cue: "Handy vor der Brust halten. Füße schulterbreit, Knie folgen den Zehen, Gewicht auf den Fersen. Mindestens bis die Oberschenkel waagerecht sind.",
            testQ: "Wie viele Kniebeugen schaffst du am Stück?" },
-  situp: { name: "Situps",      tag: "SU", color: "--c-situp", mode: "tilt",  unit: "",  f: [.6, .7, .6, .7],     step: 1,
+  situp: { name: "Situps",      tag: "SU", pose: "situp", color: "--c-situp", mode: "tilt",  unit: "",  f: [.6, .7, .6, .7],     step: 1,
            cue: "Handy flach auf die Brust, Arme darüber verschränken. Füße am Boden, Kinn leicht zur Brust, langsam wieder abrollen.",
            testQ: "Wie viele Situps schaffst du am Stück?" },
-  plank: { name: "Plank",       tag: "PL", color: "--c-plank", mode: "timer", unit: "s", f: [.6, .7, .8],         step: 3,
+  plank: { name: "Plank",       tag: "PL", pose: "plank", color: "--c-plank", mode: "timer", unit: "s", f: [.6, .7, .8],         step: 3,
            cue: "Ellbogen unter den Schultern, Bauch und Po fest, Hüfte weder hängen lassen noch hochschieben. Ruhig weiteratmen.",
            testQ: "Wie viele Sekunden hältst du den Plank?" }
 };
@@ -255,6 +290,66 @@ const ROUTINES = {
   ]}
 };
 
+
+/* ===================== Figuren (eigene Zeichnungen) =====================
+   Jede Pose: Kopf h, Hals n, Hüfte p, Arme [Ellbogen, Hand] nah/fern, Beine [Knie, Fuß] nah/fern.
+   Koordinaten in einer 120 × 80 Fläche, Boden bei y = 75. */
+const WALL = (x) => `<line x1="${x}" y1="6" x2="${x}" y2="75" stroke="var(--muted)" stroke-width="3" stroke-linecap="round" opacity=".6"/>`;
+const BAND = (pts) => `<polyline points="${pts}" fill="none" stroke="var(--c-band)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+const ARC = (d) => `<path d="${d}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="3 4" stroke-linecap="round"/>`;
+const POSES = {
+  push:      { h: [92, 45], n: [84, 50], p: [52, 60], a: [[[84, 61], [84, 73]], [[88, 61], [88, 73]]], l: [[[36, 66], [18, 72]], [[36, 66], [18, 72]]], x: ARC("M98 38 Q104 46 98 54") },
+  squat:     { h: [60, 28], n: [57, 36], p: [43, 55], a: [[[66, 42], [72, 38]], [[64, 44], [72, 40]]], l: [[[64, 56], [60, 73]], [[62, 57], [56, 73]]], x: `<rect x="70" y="33" width="5" height="9" rx="1.5" fill="var(--muted)"/>` },
+  situp:     { h: [30, 48], n: [35, 55], p: [52, 71], a: [[[44, 58], [37, 53]], [[42, 60], [36, 55]]], l: [[[66, 55], [80, 73]], [[64, 56], [78, 73]]], x: ARC("M24 66 Q20 54 26 44") },
+  plank:     { h: [92, 52], n: [85, 56], p: [52, 62], a: [[[84, 73], [98, 73]], [[88, 73], [100, 73]]], l: [[[36, 67], [18, 72]], [[36, 67], [18, 72]]] },
+  neck:      { front: true, h: [65, 14], n: [60, 23], p: [60, 45], a: [[[53, 34], [51, 45]], [[67, 34], [69, 45]]], l: [[[56, 59], [55, 73]], [[64, 59], [65, 73]]], x: ARC("M58 6 Q68 4 74 12") },
+  chestDoor: { h: [52, 15], n: [54, 23], p: [58, 45], a: [[[68, 22], [80, 12]], [[50, 34], [52, 44]]], l: [[[54, 59], [48, 73]], [[62, 59], [66, 73]]], x: WALL(81) },
+  triceps:   { front: true, h: [60, 15], n: [60, 23], p: [60, 45], a: [[[67, 8], [60, 19]], [[52, 12], [65, 8]]], l: [[[56, 59], [55, 73]], [[64, 59], [65, 73]]] },
+  hipFlexor: { h: [57, 20], n: [57, 28], p: [57, 51], a: [[[64, 40], [74, 51]], [[63, 41], [73, 52]]], l: [[[78, 56], [78, 73]], [[42, 72], [26, 73]]] },
+  hamstring: { h: [68, 46], n: [61, 52], p: [40, 71], a: [[[71, 60], [82, 66]], [[69, 61], [80, 67]]], l: [[[62, 71], [86, 71]], [[62, 71], [86, 71]]] },
+  glute:     { h: [22, 66], n: [30, 69], p: [56, 71], a: [[[48, 60], [63, 55]], [[46, 62], [62, 57]]], l: [[[68, 63], [63, 53]], [[64, 50], [78, 58]]] },
+  child:     { h: [79, 68], n: [72, 65], p: [45, 63], a: [[[88, 70], [101, 72]], [[88, 71], [101, 73]]], l: [[[60, 72], [40, 73]], [[60, 72], [40, 73]]] },
+  twist:     { h: [22, 66], n: [30, 69], p: [58, 71], a: [[[36, 58], [40, 48]], [[26, 60], [16, 56]]], l: [[[72, 60], [64, 67]], [[74, 62], [66, 69]]] },
+  shoulder:  { front: true, h: [60, 15], n: [60, 23], p: [60, 45], a: [[[52, 27], [40, 27]], [[69, 33], [55, 28]]], l: [[[56, 59], [55, 73]], [[64, 59], [65, 73]]] },
+  quad:      { h: [60, 14], n: [60, 22], p: [60, 44], a: [[[56, 34], [50, 45]], [[68, 30], [77, 29]]], l: [[[62, 60], [50, 47]], [[60, 58], [60, 73]]] },
+  calf:      { h: [76, 19], n: [70, 26], p: [56, 46], a: [[[82, 27], [92, 24]], [[80, 29], [92, 27]]], l: [[[72, 58], [70, 73]], [[46, 59], [34, 73]]], x: WALL(94) },
+  cobra:     { h: [82, 46], n: [75, 53], p: [50, 70], a: [[[74, 63], [77, 73]], [[78, 63], [81, 73]]], l: [[[35, 71], [18, 72]], [[35, 71], [18, 72]]] },
+  armCircle: { front: true, h: [60, 15], n: [60, 23], p: [60, 45], a: [[[47, 22], [34, 20]], [[73, 22], [86, 20]]], l: [[[56, 59], [55, 73]], [[64, 59], [65, 73]]], x: ARC("M30 12 a8 8 0 1 0 1 0") + ARC("M90 12 a8 8 0 1 1 -1 0") },
+  catCow:    { h: [90, 50], n: [82, 50], p: [48, 50], a: [[[82, 61], [82, 73]], [[85, 61], [85, 73]]], l: [[[48, 73], [30, 73]], [[50, 73], [32, 73]]], x: ARC("M52 42 Q66 30 80 42") },
+  hipCircle: { front: true, h: [60, 15], n: [60, 23], p: [60, 45], a: [[[48, 34], [52, 44]], [[72, 34], [68, 44]]], l: [[[56, 59], [55, 73]], [[64, 59], [65, 73]]], x: ARC("M44 50 Q60 60 76 50") },
+  lungeTwist:{ h: [78, 37], n: [72, 42], p: [56, 58], a: [[[72, 58], [70, 73]], [[73, 29], [74, 15]]], l: [[[76, 58], [80, 73]], [[40, 70], [24, 73]]] },
+  deepSquat: { h: [60, 31], n: [58, 39], p: [52, 66], a: [[[65, 52], [62, 46]], [[63, 53], [61, 47]]], l: [[[67, 56], [61, 73]], [[66, 57], [58, 73]]] },
+  bandRow:   { h: [44, 37], n: [42, 45], p: [40, 71], a: [[[34, 56], [46, 58]], [[33, 57], [45, 59]]], l: [[[62, 71], [84, 71]], [[62, 71], [84, 71]]], x: BAND("46,58 86,68 46,59") },
+  pullApart: { front: true, h: [60, 15], n: [60, 23], p: [60, 45], a: [[[46, 28], [32, 28]], [[74, 28], [88, 28]]], l: [[[56, 59], [55, 73]], [[64, 59], [65, 73]]], x: BAND("32,28 88,28") },
+  press:     { front: true, h: [60, 15], n: [60, 23], p: [60, 45], a: [[[47, 15], [49, 3]], [[73, 15], [71, 3]]], l: [[[56, 59], [55, 73]], [[64, 59], [65, 73]]], x: BAND("49,3 52,73") + BAND("71,3 68,73") },
+  curl:      { front: true, h: [60, 15], n: [60, 23], p: [60, 45], a: [[[51, 37], [53, 27]], [[69, 37], [67, 27]]], l: [[[56, 59], [55, 73]], [[64, 59], [65, 73]]], x: BAND("53,27 54,73") + BAND("67,27 66,73") },
+  bandSquat: { h: [60, 28], n: [57, 36], p: [43, 55], a: [[[54, 46], [60, 38]], [[53, 47], [59, 39]]], l: [[[64, 56], [60, 73]], [[62, 57], [56, 73]]], x: BAND("60,38 60,74") },
+  bridge:    { h: [22, 69], n: [30, 70], p: [56, 56], a: [[[38, 73], [48, 73]], [[38, 73], [48, 73]]], l: [[[72, 50], [78, 73]], [[70, 51], [76, 73]]], x: `<ellipse cx="71" cy="51" rx="5" ry="3" fill="none" stroke="var(--c-band)" stroke-width="2.5"/>` },
+  facePull:  { h: [62, 15], n: [62, 23], p: [62, 45], a: [[[54, 16], [48, 20]], [[56, 18], [50, 22]]], l: [[[60, 59], [58, 73]], [[64, 59], [66, 73]]], x: WALL(12) + BAND("48,20 13,20") },
+  extRot:    { front: true, h: [60, 15], n: [60, 23], p: [60, 45], a: [[[51, 37], [38, 36]], [[69, 37], [82, 36]]], l: [[[56, 59], [55, 73]], [[64, 59], [65, 73]]], x: BAND("38,36 82,36") },
+  passThru:  { front: true, h: [60, 15], n: [60, 23], p: [60, 45], a: [[[45, 12], [36, 3]], [[75, 12], [84, 3]]], l: [[[56, 59], [55, 73]], [[64, 59], [65, 73]]], x: BAND("36,3 84,3") }
+};
+const POSE_OF = {
+  "Nacken seitlich": "neck", "Brust am Türrahmen": "chestDoor", "Trizeps über Kopf": "triceps", "Hüftbeuger im Ausfallschritt": "hipFlexor",
+  "Beinrückseite im Sitzen": "hamstring", "Gesäß liegend": "glute", "Kindhaltung": "child", "Drehung im Liegen": "twist",
+  "Schulter quer": "shoulder", "Oberschenkel vorn": "quad", "Wade an der Wand": "calf", "Bauch: Kobra": "cobra",
+  "Armkreisen": "armCircle", "Katze und Kuh": "catCow", "Hüftkreisen": "hipCircle", "Ausfallschritt mit Drehung": "lungeTwist", "Tiefe Hocke halten": "deepSquat",
+  "Rudern im Sitzen": "bandRow", "Band auseinanderziehen": "pullApart", "Schulterdrücken": "press", "Bizepscurl": "curl", "Kniebeuge mit Band": "bandSquat",
+  "Hüftheben mit Band": "bridge", "Face Pulls": "facePull", "Außenrotation": "extRot", "Band über Kopf nach hinten": "passThru"
+};
+function figure(key, color, w) {
+  const P = POSES[key]; if (!P) return "";
+  const c = cv(color), seg = (pts, op) => `<polyline points="${pts.map(p => p.join(",")).join(" ")}" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"${op ? ` opacity="${op}"` : ""}/>`;
+  const far = P.front ? "" : ".38";
+  const body = [
+    seg([P.n, P.a[1][0], P.a[1][1]], far), seg([P.p, P.l[1][0], P.l[1][1]], far),
+    seg([P.n, P.p]), seg([P.p, P.l[0][0], P.l[0][1]]), seg([P.n, P.a[0][0], P.a[0][1]]),
+    `<circle cx="${P.h[0]}" cy="${P.h[1]}" r="6.5" fill="${c}"/>`
+  ].join("");
+  return `<svg viewBox="0 0 120 80" width="${w || 120}" aria-hidden="true"><line x1="4" y1="76" x2="116" y2="76" stroke="var(--line)" stroke-width="2.5" stroke-linecap="round"/>${P.x || ""}${body}</svg>`;
+}
+function illo(key, color, w, cls) { return `<div class="ill ${cls || ""}" style="--k:${cv(color)}">${figure(key, color, w)}</div>`; }
+
 /* ===================== Zustand ===================== */
 const LS = "nasenstuetz-v3";
 const $ = s => document.querySelector(s);
@@ -263,11 +358,11 @@ const todayKey = () => dkey(new Date());
 
 function fresh() {
   const prog = {}; for (const e of EX_ORDER) prog[e] = { tm: 0, sessions: 0, miss: 0, testAt: 0, hist: [], sens: 5 };
-  return { v: 3, setup: { done: false, cycle: "full", days: [1, 3, 5], band: false, rest: 60, time: "18:30", stretchGoal: 4 }, prog, log: {}, draft: {}, flex: [] };
+  return { v: 3, setup: { done: false, cycle: "full", days: [1, 3, 5], band: false, rest: 60, restAuto: true, time: "18:30", stretchGoal: 4, theme: "light", vars: true }, prog, log: {}, draft: {}, tested: {}, flex: [] };
 }
 let S = fresh();
 try { const s = JSON.parse(localStorage.getItem(LS) || "null"); if (s && s.v === 3) S = Object.assign(fresh(), s); } catch (e) {}
-S.setup = Object.assign(fresh().setup, S.setup); if (!Array.isArray(S.flex)) S.flex = [];
+S.setup = Object.assign(fresh().setup, S.setup); if (!Array.isArray(S.flex)) S.flex = []; if (!S.tested) S.tested = {};
 for (const e of EX_ORDER) S.prog[e] = Object.assign({ tm: 0, sessions: 0, miss: 0, testAt: 0, hist: [], sens: 5 }, S.prog[e] || {});
 // alte Daten übernehmen (Version 1 und 2)
 try {
@@ -281,10 +376,21 @@ try {
 } catch (e) {}
 function save() { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} }
 function logAdd(k, item) { (S.log[k] = S.log[k] || { items: [] }).items.push(item); }
+// Einstufungswerte aus der vorherigen Version in die Statistik übernehmen
+if (S.setup.done && !S.migT) {
+  for (const ex of EX_ORDER) { const h = S.prog[ex].hist[0]; const has = Object.values(S.log).some(d => d.items.some(i => i.type === ex && i.mode === "test")); if (h && !has) logAdd(h[0], { type: ex, mode: "test", sets: [h[1]] }); }
+  S.migT = true; save();
+}
+function applyTheme() {
+  const t = S.setup.theme || "light"; document.documentElement.setAttribute("data-theme", t);
+  const dark = t === "dark" || (t === "system" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute("content", dark ? "#131B2A" : "#F3F6FA");
+}
+function restFor(i, of) { return S.setup.restAuto ? (i >= of - 2 ? 90 : 60) : S.setup.rest; }
 
 /* ===================== Plan-Logik ===================== */
 function isPlanDay(d) { return S.setup.cycle === "daily" || S.setup.days.includes(d.getDay()); }
-function hasProgram(k) { return !!(S.log[k] && S.log[k].items.some(i => i.mode === "plan" || i.mode === "mini")); }
+function hasProgram(k) { return !!(S.log[k] && S.log[k].items.some(i => i.mode === "plan" || i.mode === "mini" || i.mode === "single")); }
 function hasStretch(k) { return !!(S.log[k] && S.log[k].items.some(i => i.mode === "routine" && ROUTINES[i.type] && ROUTINES[i.type].kind === "stretch")); }
 function monday(d) { const m = new Date(d); m.setHours(12, 0, 0, 0); m.setDate(m.getDate() - ((m.getDay() + 6) % 7)); return m; }
 function weekStats(mon) {
@@ -311,8 +417,8 @@ function exercisesFor(d) {
 }
 function targets(ex) {
   const p = S.prog[ex], D = EX[ex], scale = S.setup.cycle === "daily" ? .85 : 1;
-  const min = ex === "plank" ? 10 : 1;
-  return D.f.map(x => Math.max(min, Math.round(p.tm * x * scale)));
+  const min = ex === "plank" ? 10 : 1, vf = ex === "push" ? PUSH_VAR[pushVariant()].f : 1;
+  return D.f.map(x => Math.max(min, Math.round(p.tm * x * scale * vf)));
 }
 function testDue(ex) { const p = S.prog[ex]; return p.sessions > 0 && p.sessions % 8 === 0 && p.testAt !== p.sessions; }
 function applyProgress(ex, sets, tg, feel) {
@@ -431,48 +537,67 @@ function celebrate(big) {
     if (e < dur) requestAnimationFrame(frame); else { ctx.clearRect(0, 0, innerWidth, innerHeight); c.hidden = true; }
   })(t0);
 }
+const PUSH_VAR = {
+  normal:  { name: "Normal",       f: 1,    cue: "Hände etwas breiter als die Schultern, Körper bildet eine Linie." },
+  wide:    { name: "Breit",        f: 0.95, cue: "Hände deutlich breiter als die Schultern. Mehr Brust, weniger Arme." },
+  close:   { name: "Eng",          f: 0.75, cue: "Hände unter der Brust, Ellbogen streifen am Körper entlang. Mehr Trizeps." },
+  incline: { name: "Hände erhöht", f: 1.3,  cue: "Hände auf Sofa, Bank oder Stuhl. Leichter, aber volle Bewegung." },
+  decline: { name: "Füße erhöht",  f: 0.75, cue: "Füße auf einen Stuhl oder das Sofa. Schwerer, mehr obere Brust und Schultern." }
+};
+function pushVariant() {
+  if (!S.setup.vars) return "normal";
+  const tm = S.prog.push.tm, n = S.prog.push.sessions;
+  const pool = tm < 8 ? ["normal", "incline"] : tm < 25 ? ["normal", "wide", "close"] : ["normal", "wide", "close", "decline"];
+  return pool[n % pool.length];
+}
 function blockHTML(ex) {
-  const D = EX[ex];
-  if (testDue(ex)) return `<div class="block"><div class="badge" style="background:${cv(D.color)}">${D.tag}</div><div><div class="name">${D.name}</div><div class="small">Kontrolltest: einmal so viele wie möglich. Danach wird dein Plan neu eingestellt.</div></div></div>`;
+  const D = EX[ex], v = ex === "push" ? PUSH_VAR[pushVariant()] : null;
+  const name = D.name + (v && v.name !== "Normal" ? " · " + v.name : "");
+  if (testDue(ex)) return `<div class="block">${illo(D.pose, D.color, 54)}<div><div class="name">${D.name}</div><div class="small">Kontrolltest: einmal so viele wie möglich. Danach wird dein Plan neu eingestellt.</div></div></div>`;
   const t = targets(ex);
-  const reps = t.map((v, i) => `<span>${fmt(ex, v)}${i === t.length - 1 ? "+" : ""}</span>`).join('<span class="x">·</span>');
-  return `<div class="block"><div class="badge" style="background:${cv(D.color)}">${D.tag}</div><div><div class="name">${D.name}</div><div class="reps" style="color:${cv(D.color)}">${reps}</div></div></div>`;
+  const reps = t.map((x, i) => `<span>${fmt(ex, x)}${i === t.length - 1 ? "+" : ""}</span>`).join('<span class="x">·</span>');
+  return `<div class="block">${illo(D.pose, D.color, 54)}<div><div class="name">${name}</div><div class="reps" style="color:${cv(D.color)}">${reps}</div></div></div>`;
+}
+function brandHTML() {
+  return `<div class="brand"><span class="logo">${'<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 18h18" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M5 15.5l10-4.5M13.5 11.6l.6 5" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="17.6" cy="9.2" r="2.3" fill="#fff"/></svg>'}</span><h1>${APP_NAME}</h1></div>`;
 }
 
 let forceToday = false;
 function render() {
+  applyTheme();
   const app = $("#app");
   if (!S.setup.done) { app.innerHTML = setupHTML(); bindSetup(); return; }
   const now = new Date(), k = todayKey(), plan = isPlanDay(now) || forceToday, done = hasProgram(k);
   const wst = weekStats(monday(now)), wd = wst.done, wp = wst.plan;
   const exs = exercisesFor(now);
+  const dateStr = now.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
   let today;
   if (done) {
-    today = `<div class="today-card"><div class="today-head"><h2>Heute</h2><span class="label">${wd} von ${wp} diese Woche</span></div>
-      <div class="done-note">✓ Training erledigt. Jetzt noch dehnen, dann ist der Tag rund.</div>
-      <button class="go alt" data-routine="after">Nach dem Training dehnen · 5 Min</button></div>`;
+    today = `<div class="today-card card"><div class="today-top"><span class="label">${dateStr}</span><h2>Training erledigt</h2><span>${wd} von ${wp} Einheiten diese Woche</span></div>
+      <div class="today-body"><div class="done-note">✓ Stark. Jetzt noch dehnen, dann ist der Tag rund.</div>
+      <button class="go alt" data-routine="after">Nach dem Training dehnen · 5 Min</button></div></div>`;
   } else if (plan) {
-    const mins = Math.round(exs.reduce((a, e) => a + EX[e].f.length * (S.setup.rest + 40), 0) / 60);
-    today = `<div class="today-card"><div class="today-head"><h2>Heute</h2><span class="label">ca. ${mins} Min · ${wd} von ${wp} diese Woche</span></div>
-      <div class="blocks">${exs.map(blockHTML).join("")}</div>
+    const mins = Math.round(exs.reduce((a, e) => a + EX[e].f.length * ((S.setup.restAuto ? 70 : S.setup.rest) + 40), 0) / 60);
+    today = `<div class="today-card card"><div class="today-top"><span class="label">${dateStr}</span><h2>Dein Training heute</h2><span>ca. ${mins} Min · ${wd} von ${wp} Einheiten diese Woche</span></div>
+      <div class="today-body"><div class="blocks">${exs.map(blockHTML).join("")}</div>
       <p class="small">Die letzte Zahl ist ein Minimum. Mach dort so viele, wie sauber gehen.</p>
       <button class="go" id="goToday">Training starten</button>
-      <button class="go alt" id="goMini">Keine Lust? Mini-Version · 4 Min</button></div>`;
+      <button class="go alt" id="goMini">Keine Lust? Mini-Version · 4 Min</button></div></div>`;
   } else {
-    today = `<div class="today-card"><div class="today-head"><h2>Ruhetag</h2><span class="label">${wd} von ${wp} diese Woche</span></div>
-      <p class="muted">Muskeln wachsen in der Pause. Dehnen oder ein Band-Workout gehen trotzdem.</p>
-      <button class="go alt" id="forceToday">Trotzdem Plan-Training machen</button></div>`;
+    today = `<div class="today-card card"><div class="today-top"><span class="label">${dateStr}</span><h2>Ruhetag</h2><span>${wd} von ${wp} Einheiten diese Woche</span></div>
+      <div class="today-body"><p class="muted">Muskeln wachsen in der Pause. Dehnen, Band oder eine einzelne Übung gehen trotzdem.</p>
+      <button class="go alt" id="forceToday">Trotzdem Plan-Training machen</button></div></div>`;
   }
-  const tiles = [
-    ["evening", ROUTINES.evening], ["morning", ROUTINES.morning], ["after", ROUTINES.after]
-  ];
+  const single = EX_ORDER.map(ex => `<button class="tile" style="--k:${cv(EX[ex].color)}" data-single="${ex}">${illo(EX[ex].pose, EX[ex].color, 64)}<b>${EX[ex].name}</b></button>`).join("");
+  const tiles = [["evening", ROUTINES.evening], ["morning", ROUTINES.morning], ["after", ROUTINES.after]];
   if (S.setup.band) tiles.push(["bandFull", ROUTINES.bandFull], ["bandPosture", ROUTINES.bandPosture]);
-  let tileHTML = tiles.map(([id, r]) => `<button class="tile" data-routine="${id}"><span class="k"><span class="label">${r.kind === "band" ? "Band" : "Dehnen"}</span><span class="dot" style="background:${cv(r.color)}"></span></span><b>${r.name}</b><span class="small">${r.min} Min${r.rounds ? " · " + r.rounds + " Runden" : ""}</span></button>`).join("");
-  tileHTML += `<button class="tile" id="freeSet"><span class="k"><span class="label">Frei</span><span class="dot" style="background:${cv("--c-free")}"></span></span><b>Einzelner Satz</b><span class="small">Zählt mit, ohne Plan</span></button>`;
+  let tileHTML = tiles.map(([id, r]) => `<button class="tile" style="--k:${cv(r.color)}" data-routine="${id}">${illo(POSE_OF[r.items[0][0]], r.color, 92)}<span class="label">${r.kind === "band" ? "Band" : "Dehnen"} · ${r.min} Min</span><b>${r.name}</b></button>`).join("");
+  tileHTML += `<button class="tile" style="--k:${cv("--c-free")}" id="custom">${illo("deepSquat", "--c-free", 92)}<span class="label">Selbst zusammenstellen</span><b>Eigenes Training</b></button>`;
+  tileHTML += `<button class="tile" style="--k:${cv("--c-free")}" id="freeSet">${illo("armCircle", "--c-free", 92)}<span class="label">Ohne Plan</span><b>Einzelner Satz</b></button>`;
 
   const progRows = EX_ORDER.map(ex => {
     const p = S.prog[ex], first = p.hist.length ? p.hist[0][1] : Math.round(p.tm), now_ = Math.round(p.tm), d = now_ - first;
-    return `<div class="prow"><div><div class="name" style="font-weight:600">${EX[ex].name}</div>${d > 0 ? `<div class="delta">+${fmt(ex, d)} seit Start</div>` : `<div class="small">${p.sessions} Einheiten</div>`}</div>
+    return `<div class="prow"><div><div style="font-weight:600">${EX[ex].name}</div>${d > 0 ? `<div class="delta">+${fmt(ex, d)} seit Start</div>` : `<div class="small">${p.sessions} ${p.sessions === 1 ? "Einheit" : "Einheiten"}</div>`}</div>
       <div class="lvl" style="color:${cv(EX[ex].color)}">${fmt(ex, now_)}</div>${spark(p.hist, EX[ex].color)}</div>`;
   }).join("");
 
@@ -481,23 +606,25 @@ function render() {
   const flexDelta = flexLast && flexFirst && S.flex.length > 1 ? flexLast[1] - flexFirst[1] : null;
   const flexDue = !flexLast || (Date.now() - new Date(flexLast[0] + "T12:00").getTime()) > 6 * 864e5;
   app.innerHTML = `
-  <header class="top"><h1>Nasenstütz</h1><span class="small">${now.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })}</span></header>
+  <header class="top">${brandHTML()}</header>
   ${weekStrip()}
   ${today}
-  <div class="streak"><div class="flame">${streak}</div><div><div style="font-weight:600">${streak === 1 ? "Woche" : "Wochen"} in Folge im Plan</div>
+  <div class="streak card"><div class="flame">${streak}</div><div><div style="font-weight:600">${streak === 1 ? "Woche" : "Wochen"} in Folge im Plan</div>
     <div class="small">Diese Woche: Training ${ws.done}/${ws.plan} · Dehnen ${ws.stretch}/${S.setup.stretchGoal}${S.setup.cycle !== "daily" ? " · Termin " + S.setup.time + " Uhr" : ""}</div></div></div>
-  <section style="display:grid;gap:10px"><span class="label">Weitere Trainings</span><div class="tiles">${tileHTML}</div></section>
-  <section style="display:grid;gap:10px"><span class="label">Fortschritt · Trainingsstand am Stück</span><div class="prog">${progRows}
+  <section style="display:grid;gap:10px"><span class="label">Nur eine Übung · zählt für deinen Plan</span><div class="tiles four">${single}</div></section>
+  <section style="display:grid;gap:10px"><span class="label">Dehnen, Band und mehr</span><div class="tiles">${tileHTML}</div></section>
+  <section style="display:grid;gap:10px"><span class="label">Fortschritt · Trainingsstand am Stück</span><div class="prog card">${progRows}
     <div class="prow"><div><div style="font-weight:600">Beweglichkeit</div>${flexDelta != null && flexDelta !== 0 ? `<div class="delta" style="${flexDelta < 0 ? "color:var(--c-push)" : ""}">${flexDelta > 0 ? "+" : ""}${flexDelta} cm seit Start</div>` : `<div class="small">Rumpfbeuge im Sitzen</div>`}</div>
       <div class="lvl" style="color:var(--c-stretch)">${flexLast ? (flexLast[1] > 0 ? "+" : "") + flexLast[1] : "–"}</div>${spark(S.flex, "--c-stretch")}</div></div>
-    <details class="box" ${flexDue ? "open" : ""}><summary>${flexDue ? "Beweglichkeit messen (wöchentlich)" : "Beweglichkeit neu messen"}</summary>
-      <div class="fieldset"><p class="small">Setz dich mit gestreckten Beinen hin, Füße gegen eine Wand oder Kiste. Lehn dich langsam nach vorn und miss, wo deine Fingerspitzen landen. Zehenspitzen = 0, davor negativ (−8), darüber hinaus positiv (+5). Vorher kurz aufwärmen.</p>
+    <details class="box card" ${flexDue ? "open" : ""}><summary>${flexDue ? "Beweglichkeit messen (wöchentlich)" : "Beweglichkeit neu messen"}</summary>
+      <div class="fieldset">${illo("hamstring", "--c-stretch", 150)}<p class="small">Setz dich mit gestreckten Beinen hin, Füße gegen eine Wand oder Kiste. Lehn dich langsam nach vorn und miss, wo deine Fingerspitzen landen. Zehenspitzen = 0, davor negativ (−8), darüber hinaus positiv (+5). Vorher kurz aufwärmen.</p>
       <div class="flex-in"><input type="number" inputmode="numeric" id="flexIn" min="-60" max="60" aria-label="Zentimeter"><span>cm</span><button class="btn-s" id="flexSave">Speichern</button></div></div></details></section>
   <section style="display:grid;gap:10px"><span class="label">Statistik</span>${statsHTML()}</section>
-  <details class="box"><summary>Plan und Einstellungen</summary>${settingsHTML()}</details>
+  <details class="box card"><summary>Plan und Einstellungen</summary>${settingsHTML()}</details>
   <p class="small" style="text-align:center">Deine Daten bleiben in diesem Browser auf diesem Gerät.</p>`;
   bindHome();
 }
+
 function spark(hist, color) {
   const pts = hist.slice(-20);
   if (pts.length < 2) return `<svg class="spark" viewBox="0 0 92 30" aria-hidden="true"><line x1="2" y1="26" x2="90" y2="26" stroke="var(--line)" stroke-width="2" fill="none"/></svg>`;
@@ -521,7 +648,10 @@ function settingsHTML() {
     <div class="row"><span>Widerstandsband vorhanden</span><button class="chip" id="bandT" aria-pressed="${S.setup.band}">${S.setup.band ? "Ja" : "Nein"}</button></div>
     <div class="row"><label for="timeIn">Fester Trainingstermin</label><input type="time" id="timeIn" value="${S.setup.time}" style="font:inherit;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)"></div>
     <div class="row"><label for="strSel">Dehnziel pro Woche</label><select id="strSel">${[2, 3, 4, 5, 7].map(s => `<option value="${s}" ${S.setup.stretchGoal === s ? "selected" : ""}>${s}× Dehnen</option>`).join("")}</select></div>
-    <div class="row"><label for="restSel">Pause zwischen Sätzen</label><select id="restSel">${[45, 60, 90, 120].map(s => `<option value="${s}" ${S.setup.rest === s ? "selected" : ""}>${s} Sekunden</option>`).join("")}</select></div>
+    <div class="row"><label for="restSel">Pause zwischen Sätzen</label><select id="restSel"><option value="auto" ${S.setup.restAuto ? "selected" : ""}>Automatisch</option>${[45, 60, 90, 120].map(s => `<option value="${s}" ${!S.setup.restAuto && S.setup.rest === s ? "selected" : ""}>${s} Sekunden</option>`).join("")}</select></div>
+    <p class="small">Automatisch: 60 Sekunden zwischen den ersten Sätzen, 90 Sekunden vor den letzten beiden, damit du im Maximal-Satz noch Kraft hast.</p>
+    <div class="row"><span>Liegestütz-Varianten im Wechsel</span><button class="chip" id="varsT" aria-pressed="${S.setup.vars}">${S.setup.vars ? "An" : "Aus"}</button></div>
+    <div class="row"><label for="themeSel">Darstellung</label><select id="themeSel">${[["light", "Hell"], ["dark", "Dunkel"], ["system", "Wie iPhone"]].map(([v, n]) => `<option value="${v}" ${S.setup.theme === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>
     <div class="row"><label for="sensSq">Squats: Empfindlichkeit</label><input type="range" id="sensSq" min="1" max="10" value="${S.prog.squat.sens}"></div>
     <div class="row"><label for="sensSu">Situps: Empfindlichkeit</label><input type="range" id="sensSu" min="1" max="10" value="${S.prog.situp.sens}"></div>
     <button class="linkbtn" id="redoTest">Einstufung neu machen</button>
@@ -553,14 +683,14 @@ function bindRhythm() {
 /* ---------- Einstufung ---------- */
 function setupHTML() {
   return `<div class="setup">
-    <header class="top"><h1>Nasenstütz</h1></header>
+    <header class="top">${brandHTML()}</header>
     <div class="intro"><span class="label">Einstufung</span><h2>Dein Plan, auf dich zugeschnitten</h2>
-      <p class="muted">Zwei Schritte: Wie oft du trainieren willst, und wo du gerade stehst. Daraus rechnet die App jede Einheit aus und steigert sie nach jedem Training.</p></div>
-    <div class="today-card"><h3>1 · Rhythmus</h3>${cycleOpts()}${dayChips()}<p class="small" id="dayHint"></p>
+      <p class="muted">Zwei Schritte: wie oft du trainieren willst und wo du gerade stehst. Daraus rechnet die App jede Einheit aus und steigert sie nach jedem Training.</p></div>
+    <div class="card pad"><h3>1 · Rhythmus</h3>${cycleOpts()}${dayChips()}<p class="small" id="dayHint"></p>
       <div class="row"><span>Ich habe ein Widerstandsband</span><button class="chip" id="bandT" aria-pressed="${S.setup.band}">${S.setup.band ? "Ja" : "Nein"}</button></div></div>
-    <div class="today-card"><h3>2 · Wo stehst du?</h3>
-      <p class="small">Teste jede Übung einmal bis kurz vor Schluss, oder trag eine ehrliche Schätzung ein. Zwischen den Tests ruhig 2 Minuten Pause.</p>
-      <div>${EX_ORDER.map(ex => `<div class="test-row"><div class="badge" style="background:${cv(EX[ex].color)}">${EX[ex].tag}</div>
+    <div class="card pad"><h3>2 · Wo stehst du?</h3>
+      <p class="small">Teste jede Übung einmal bis kurz vor Schluss, oder trag eine ehrliche Schätzung ein. Zwischen den Tests ruhig 2 Minuten Pause. Echte Tests landen auch in deiner Statistik.</p>
+      <div>${EX_ORDER.map(ex => `<div class="test-row">${illo(EX[ex].pose, EX[ex].color, 50)}
         <div><div style="font-weight:600">${EX[ex].name}</div><div class="small">${EX[ex].testQ}</div></div>
         <div class="ctl"><input type="number" inputmode="numeric" min="1" max="999" id="t_${ex}" aria-label="${EX[ex].name} Ergebnis" value="${S.draft[ex] || ""}"><button class="btn-s" data-test="${ex}">Test</button></div></div>`).join("")}</div>
       <p class="small" id="setupErr"></p>
@@ -570,7 +700,7 @@ function setupHTML() {
 function bindSetup() {
   bindRhythm();
   $("#bandT").addEventListener("click", () => { S.setup.band = !S.setup.band; save(); render(); });
-  EX_ORDER.forEach(ex => $("#t_" + ex).addEventListener("input", e => { S.draft[ex] = e.target.value; save(); }));
+  EX_ORDER.forEach(ex => $("#t_" + ex).addEventListener("input", e => { S.draft[ex] = e.target.value; if (S.tested) delete S.tested[ex]; save(); }));
   document.querySelectorAll("[data-test]").forEach(b => b.addEventListener("click", () => {
     const ex = b.dataset.test;
     startRun("Test · " + EX[ex].name, [{ k: "set", ex, test: true, target: 0, last: true, idx: 1, of: 1 }], { kind: "setup" });
@@ -579,8 +709,11 @@ function bindSetup() {
     const vals = {}; let ok = true;
     for (const ex of EX_ORDER) { const v = Math.round(Number($("#t_" + ex).value)); if (!(v > 0)) ok = false; vals[ex] = v; }
     if (!ok) { $("#setupErr").textContent = "Trag für jede Übung eine Zahl ein, notfalls eine Schätzung."; return; }
-    for (const ex of EX_ORDER) { S.prog[ex].hist = []; S.prog[ex].sessions = 0; applyTest(ex, vals[ex]); }
-    S.setup.done = true; S.draft = {}; save(); render(); window.scrollTo(0, 0);
+    for (const ex of EX_ORDER) {
+      S.prog[ex].hist = []; S.prog[ex].sessions = 0; applyTest(ex, vals[ex]);
+      if (S.tested && S.tested[ex]) logAdd(todayKey(), { type: ex, mode: "test", sets: [vals[ex]] });
+    }
+    S.setup.done = true; S.draft = {}; S.tested = {}; S.migT = true; save(); render(); window.scrollTo(0, 0);
   });
 }
 
@@ -591,7 +724,11 @@ function bindHome() {
   document.querySelectorAll("[data-routine]").forEach(b => b.addEventListener("click", () => startRoutine(b.dataset.routine)));
   $("#freeSet").addEventListener("click", startFree);
   $("#bandT").addEventListener("click", () => { S.setup.band = !S.setup.band; save(); render(); });
-  $("#restSel").addEventListener("change", e => { S.setup.rest = Number(e.target.value); save(); render(); });
+  $("#restSel").addEventListener("change", e => { if (e.target.value === "auto") S.setup.restAuto = true; else { S.setup.restAuto = false; S.setup.rest = Number(e.target.value); } save(); render(); });
+  $("#varsT").addEventListener("click", () => { S.setup.vars = !S.setup.vars; save(); render(); });
+  $("#themeSel").addEventListener("change", e => { S.setup.theme = e.target.value; save(); render(); });
+  document.querySelectorAll("[data-single]").forEach(b => b.addEventListener("click", () => startSingle(b.dataset.single)));
+  $("#custom").addEventListener("click", startCustom);
   $("#sensSq").addEventListener("change", e => { S.prog.squat.sens = Number(e.target.value); save(); });
   $("#sensSu").addEventListener("change", e => { S.prog.situp.sens = Number(e.target.value); save(); });
   $("#redoTest").addEventListener("click", () => { S.setup.done = false; save(); render(); window.scrollTo(0, 0); });
@@ -614,40 +751,47 @@ function startMini() {
   });
   steps.push({ k: "set", ex: "plank", target: Math.max(10, Math.round(S.prog.plank.tm * .5)), last: true, idx: 1, of: 1, mini: true });
   steps.push({ k: "rest", sec: 15, next: "Dehnen" });
-  steps.push({ k: "timed", name: "Kindhaltung", cue: "Auf die Fersen setzen, Arme lang nach vorn, Stirn Richtung Boden.", sec: 40, color: "--c-stretch" });
+  steps.push({ k: "timed", name: "Kindhaltung", cue: "Auf die Fersen setzen, Arme lang nach vorn, Stirn Richtung Boden.", sec: 40, color: "--c-stretch", pose: "child" });
   steps.push({ k: "done" });
   startRun("Mini-Version", steps, { kind: "mini" });
 }
 
 /* ===================== Abläufe bauen ===================== */
+function planSteps(ex, steps) {
+  if (testDue(ex)) { steps.push({ k: "set", ex, test: true, target: 0, last: true, idx: 1, of: 1 }); return; }
+  const t = targets(ex), variant = ex === "push" ? pushVariant() : null;
+  t.forEach((v, i) => {
+    steps.push({ k: "set", ex, target: v, last: i === t.length - 1, idx: i + 1, of: t.length, variant });
+    if (i < t.length - 1) steps.push({ k: "rest", sec: restFor(i + 1, t.length), next: EX[ex].name + " · Satz " + (i + 2) });
+  });
+  steps.push({ k: "feel", ex, targets: t });
+}
 function startToday() {
   const exs = exercisesFor(new Date()), steps = [];
   exs.forEach((ex, bi) => {
-    if (testDue(ex)) { steps.push({ k: "set", ex, test: true, target: 0, last: true, idx: 1, of: 1 }); }
-    else {
-      const t = targets(ex);
-      t.forEach((v, i) => {
-        steps.push({ k: "set", ex, target: v, last: i === t.length - 1, idx: i + 1, of: t.length });
-        if (i < t.length - 1) steps.push({ k: "rest", sec: S.setup.rest, next: EX[ex].name + " · Satz " + (i + 2) });
-      });
-      steps.push({ k: "feel", ex, targets: t });
-    }
-    if (bi < exs.length - 1) steps.push({ k: "rest", sec: Math.max(60, S.setup.rest), next: EX[exs[bi + 1]].name });
+    planSteps(ex, steps);
+    if (bi < exs.length - 1) steps.push({ k: "rest", sec: 90, next: EX[exs[bi + 1]].name });
   });
   steps.push({ k: "done" });
   startRun("Plan-Training", steps, { kind: "plan" });
 }
+function startSingle(ex) {
+  const steps = []; planSteps(ex, steps); steps.push({ k: "done" });
+  startRun(EX[ex].name, steps, { kind: "single" });
+}
+function startCustom() { startRun("Eigenes Training", [{ k: "build" }], { kind: "free" }); }
 function startRoutine(id) {
   const r = ROUTINES[id], steps = [];
   if (r.kind === "stretch") {
     r.items.forEach(([n, cue, sec, sides]) => {
-      if (sides) { steps.push({ k: "timed", name: n + " · links", cue, sec, color: r.color }); steps.push({ k: "timed", name: n + " · rechts", cue, sec, color: r.color }); }
-      else steps.push({ k: "timed", name: n, cue, sec, color: r.color });
+      const pose = POSE_OF[n];
+      if (sides) { steps.push({ k: "timed", name: n + " · links", cue, sec, color: r.color, pose }); steps.push({ k: "timed", name: n + " · rechts", cue, sec, color: r.color, pose }); }
+      else steps.push({ k: "timed", name: n, cue, sec, color: r.color, pose });
     });
   } else {
     for (let round = 1; round <= r.rounds; round++) {
       r.items.forEach(([n, cue, reps], i) => {
-        steps.push({ k: "reps", name: n, cue, reps, color: r.color, round, rounds: r.rounds });
+        steps.push({ k: "reps", name: n, cue, reps, color: r.color, round, rounds: r.rounds, pose: POSE_OF[n] });
         if (i < r.items.length - 1) steps.push({ k: "rest", sec: 20, next: r.items[i + 1][0] });
       });
       if (round < r.rounds) steps.push({ k: "rest", sec: 60, next: "Runde " + (round + 1) });
@@ -679,7 +823,7 @@ document.addEventListener("visibilitychange", () => { if (R && document.visibili
 function clearTimers() { timers.forEach(t => { clearInterval(t); clearTimeout(t); }); timers = []; }
 
 async function needMotion(steps) {
-  if (!steps.some(s => s.k === "set" && (EX[s.ex].mode === "lift" || EX[s.ex].mode === "tilt")) && !steps.some(s => s.k === "pick")) return true;
+  if (!steps.some(s => s.k === "set" && (EX[s.ex].mode === "lift" || EX[s.ex].mode === "tilt")) && !steps.some(s => s.k === "pick" || s.k === "build")) return true;
   if (typeof DeviceMotionEvent === "undefined") return true;
   if (typeof DeviceMotionEvent.requestPermission === "function") {
     try { const r = await DeviceMotionEvent.requestPermission(); return r === "granted" ? true : "denied"; }
@@ -715,7 +859,9 @@ function commit(finished) {
   if (!R || R.committed) return;
   const k = todayKey(), m = R.meta;
   if (m.kind === "plan") {
-    for (const [ex, r] of Object.entries(R.res)) if (r.sets.length) logAdd(k, { type: ex, mode: "plan", sets: r.sets.slice(), test: !!r.test });
+    for (const [ex, r] of Object.entries(R.res)) if (r.sets.length) logAdd(k, { type: ex, mode: "plan", sets: r.sets.slice(), test: !!r.test, variant: r.variant });
+  } else if (m.kind === "single") {
+    for (const [ex, r] of Object.entries(R.res)) if (r.sets.length) logAdd(k, { type: ex, mode: "single", sets: r.sets.slice(), test: !!r.test });
   } else if (m.kind === "mini") {
     for (const [ex, r] of Object.entries(R.res)) if (r.sets.length) logAdd(k, { type: ex, mode: "mini", sets: r.sets.slice() });
   } else if (m.kind === "free") {
@@ -734,7 +880,7 @@ function go(i) {
   $("#rTrack").style.width = (i / Math.max(1, total - 1) * 100) + "%";
   const st = $("#rStage"), ac = $("#rActions");
   st.innerHTML = ""; ac.innerHTML = ""; st.onpointerdown = null;
-  ({ set: stepSet, rest: stepRest, timed: stepTimed, reps: stepReps, feel: stepFeel, done: stepDone, pick: stepPick })[s.k](s, st, ac);
+  ({ set: stepSet, rest: stepRest, timed: stepTimed, reps: stepReps, feel: stepFeel, done: stepDone, pick: stepPick, build: stepBuild })[s.k](s, st, ac);
 }
 const next = () => { if (R) go(R.i + 1); };
 
@@ -750,7 +896,9 @@ function countdown(sec, statusEl, done) {
 function stepSet(s, st, ac) {
   const D = EX[s.ex], col = D.color;
   let count = 0, armed = false, lastTap = 0, finished = false;
-  st.append(el("div", "what", D.name + (s.test ? " · Test" : " · Satz " + s.idx + "/" + s.of), `color:${cv(col)}`));
+  const V = s.variant ? PUSH_VAR[s.variant] : null;
+  const ill = document.createElement("div"); ill.innerHTML = illo(D.pose, col, 170, "sm"); st.append(ill.firstChild);
+  st.append(el("div", "what", D.name + (V && s.variant !== "normal" ? " " + V.name : "") + (s.test ? " · Test" : s.of > 1 ? " · Satz " + s.idx + "/" + s.of : ""), `color:${cv(col)}`));
   const big = el("div", "big", D.unit === "s" ? "0s" : "0", `color:${cv(col)}`); st.append(big);
   const goal = el("div", "goal", s.test ? (D.unit === "s" ? "So lange wie möglich halten" : "So viele wie sauber gehen") : !s.target ? "Ohne Ziel, einfach los" : (s.last ?"Mindestens " + fmt(s.ex, s.target) + ", gern mehr" : "Ziel " + fmt(s.ex, s.target)));
   st.append(goal);
@@ -760,7 +908,7 @@ function stepSet(s, st, ac) {
     const m = el("div", "meter"); m.innerHTML = '<div class="t"><div class="f"></div><div class="th"></div></div><div class="c"><span>Bewegung</span><span>Zählschwelle</span></div>';
     meterFill = m.querySelector(".f"); meterFill.style.background = cv(col); st.append(m);
   }
-  st.append(el("div", "cue", D.cue));
+  st.append(el("div", "cue", (V && s.variant !== "normal" ? V.cue + " " : "") + D.cue));
 
   const set = (v, pop) => {
     count = Math.max(0, v); big.textContent = fmt(s.ex, count);
@@ -775,6 +923,8 @@ function stepSet(s, st, ac) {
       if (R.meta.kind === "setup") { S.draft[s.ex] = String(count); save(); }
       else if (count > 0) { applyTest(s.ex, count); save(); }
     } else r.sets.push(count);
+    if (s.variant) r.variant = s.variant;
+    if (R.meta.kind === "setup") { S.tested[s.ex] = true; save(); }
     if (R.meta.kind === "setup") { endRun(false); return; }
     next();
   };
@@ -823,8 +973,9 @@ function stepRest(s, st, ac) {
 /* ---------- Dehnen (Zeit) ---------- */
 function stepTimed(s, st, ac) {
   let left = s.sec, started = false;
+  if (s.pose) { const ill = document.createElement("div"); ill.innerHTML = illo(s.pose, s.color, 300); st.append(ill.firstChild); }
   st.append(el("div", "what", s.name, `color:${cv(s.color)}`));
-  const big = el("div", "big", String(left), `color:${cv(s.color)}`); st.append(big);
+  const big = el("div", "big mid", String(left), `color:${cv(s.color)}`); st.append(big);
   st.append(el("div", "cue", s.cue));
   const status = el("div", "status", "Einnehmen …"); st.append(status);
   const run = () => {
@@ -841,8 +992,9 @@ function stepTimed(s, st, ac) {
 
 /* ---------- Band (Wiederholungen) ---------- */
 function stepReps(s, st, ac) {
+  if (s.pose) { const ill = document.createElement("div"); ill.innerHTML = illo(s.pose, s.color, 300); st.append(ill.firstChild); }
   st.append(el("div", "what", s.name, `color:${cv(s.color)}`));
-  st.append(el("div", "big", String(s.reps), `color:${cv(s.color)}`));
+  st.append(el("div", "big mid", String(s.reps), `color:${cv(s.color)}`));
   st.append(el("div", "goal", "Wiederholungen · Runde " + s.round + " von " + s.rounds));
   st.append(el("div", "cue", s.cue + " Langsam zurück, 2 Sekunden."));
   ac.append(btn("Erledigt", "main", () => { beep(1000, .12); next(); }, s.color));
@@ -896,6 +1048,46 @@ function stepPick(s, st, ac) {
     box.append(b);
   });
   st.append(box);
+}
+
+/* ---------- Eigenes Training zusammenstellen ---------- */
+function stepBuild(s, st, ac) {
+  st.style.alignContent = "start";
+  st.append(el("div", "what", "Eigenes Training"));
+  st.append(el("div", "cue", "Wähle Übungen, Sätze und Ziel pro Satz. Vorgeschlagen ist dein aktueller Plan-Stand."));
+  const conf = S.custom || {}; const box = el("div", "builder");
+  EX_ORDER.forEach(ex => {
+    const c = conf[ex] || { on: false, sets: 3, reps: targets(ex)[0] };
+    const row = el("div", "brow" + (c.on ? " on" : "")); row.style.setProperty("--k", cv(EX[ex].color));
+    row.innerHTML = illo(EX[ex].pose, EX[ex].color, 54);
+    const mid = el("div"); mid.append(el("div", "", EX[ex].name, "font-weight:600"));
+    const ctl = el("div", "ctl");
+    const sets = document.createElement("select"); sets.setAttribute("aria-label", EX[ex].name + " Sätze");
+    [1, 2, 3, 4, 5, 6].forEach(n => { const o = document.createElement("option"); o.value = n; o.textContent = n; if (n === c.sets) o.selected = true; sets.append(o); });
+    const reps = document.createElement("input"); reps.type = "number"; reps.inputMode = "numeric"; reps.min = 1; reps.value = c.reps; reps.setAttribute("aria-label", EX[ex].name + " Ziel");
+    ctl.append(sets, el("span", "", "×"), reps, el("span", "", EX[ex].unit === "s" ? "s" : "Wdh"));
+    mid.append(ctl);
+    const tog = el("button", "chip", c.on ? "Dabei" : "Aus"); tog.setAttribute("aria-pressed", String(c.on));
+    tog.addEventListener("click", () => { c.on = !c.on; tog.textContent = c.on ? "Dabei" : "Aus"; tog.setAttribute("aria-pressed", String(c.on)); row.classList.toggle("on", c.on); });
+    sets.addEventListener("change", () => c.sets = Number(sets.value));
+    reps.addEventListener("change", () => c.reps = Math.max(1, Math.round(Number(reps.value)) || 1));
+    row.append(mid, tog); box.append(row); conf[ex] = c;
+  });
+  st.append(box);
+  ac.append(btn("Los geht's", "main", () => {
+    const chosen = EX_ORDER.filter(ex => conf[ex].on); if (!chosen.length) return;
+    S.custom = conf; save();
+    const steps = [];
+    chosen.forEach((ex, bi) => {
+      for (let i = 1; i <= conf[ex].sets; i++) {
+        steps.push({ k: "set", ex, target: conf[ex].reps, last: i === conf[ex].sets, idx: i, of: conf[ex].sets });
+        if (i < conf[ex].sets) steps.push({ k: "rest", sec: restFor(i, conf[ex].sets), next: EX[ex].name + " · Satz " + (i + 1) });
+      }
+      if (bi < chosen.length - 1) steps.push({ k: "rest", sec: 90, next: EX[chosen[bi + 1]].name });
+    });
+    steps.push({ k: "done" });
+    R.steps.splice(R.i + 1, R.steps.length, ...steps); next();
+  }, "--c-free"));
 }
 
 /* ===================== Bewegungssensor =====================
